@@ -3,13 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Camy Airbnb — Danh Mục Căn Hộ & Phòng Cho Thuê</title>
+  <title id="doc-title">Camy Airbnb — Danh Mục Căn Hộ</title>
 
-  <!-- PWA Cấu hình cho iOS & Android -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Camy Airbnb" />
-  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#18181b" />
 
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2222%22 fill=%22%2318181b%22/><text y=%22.9em%22 x=%2250%%22 text-anchor=%22middle%22 font-size=%2260%22>🏠</text></svg>" />
@@ -17,7 +14,6 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Firebase Realtime WebSocket SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 
@@ -26,94 +22,59 @@
   <script>
     tailwind.config = {
       theme: {
-        extend: {
-          fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] }
-        }
+        extend: { fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] } }
       }
     }
   </script>
 
   <style>
-    body {
-      background-color: #f4f4f5;
-      -webkit-tap-highlight-color: transparent;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
+    body { background-color: #f4f4f5; -webkit-tap-highlight-color: transparent; padding-bottom: env(safe-area-inset-bottom); }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    #netlify-deploy-badge, a[href*="netlify.com"], img[alt*="Deploys by Netlify"], iframe[src*="netlify"] {
-      display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none !important;
-    }
   </style>
 </head>
 <body class="text-zinc-900 antialiased selection:bg-zinc-200 selection:text-zinc-900 min-h-screen flex flex-col justify-between">
 
-  <!-- TOP HEADER & FLOATING SEARCH BAR -->
+  <!-- TOP HEADER -->
   <header class="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-zinc-200 px-4 md:px-8 py-3.5 shadow-xs">
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-3">
-      
-      <!-- LOGO & TITLE -->
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
           <div class="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-xl shadow-md">🏠</div>
           <div>
-            <h1 class="font-extrabold text-base text-zinc-900 leading-tight">Camy Airbnb Portfolio</h1>
+            <h1 id="brand-title" class="font-extrabold text-base text-zinc-900 leading-tight">Camy Airbnb Portfolio</h1>
             <p id="agent-welcome-sub" class="text-[11px] text-zinc-500 font-medium">Hệ thống lưu trữ & chia sẻ phòng</p>
           </div>
         </div>
-
-        <button
-          onclick="openModal('loginModal')"
-          class="md:hidden px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition shadow-xs bg-zinc-900 text-zinc-100"
-        >
+        <button onclick="openModal('loginModal')" class="md:hidden px-3.5 py-1.5 rounded-xl text-xs font-extrabold flex items-center gap-1.5 transition shadow-xs bg-zinc-900 text-zinc-100">
           <i data-lucide="lock" class="w-3.5 h-3.5"></i> Quản lý
         </button>
       </div>
 
-      <!-- THANH TÌM KIẾM (AIRBNB STYLE) -->
       <div class="flex flex-wrap items-center gap-2">
         <div class="relative flex-1 sm:w-60">
           <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
-          <input
-            type="text"
-            id="search-input"
-            oninput="renderList()"
-            placeholder="Tìm theo tên, mã phòng, tiện ích..."
-            class="w-full pl-10 pr-3 py-2 rounded-full border border-zinc-200 bg-zinc-100/70 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
-          />
+          <input type="text" id="search-input" oninput="renderList()" placeholder="Tìm tên, mã, tiện ích..." class="w-full pl-10 pr-3 py-2 rounded-full border border-zinc-200 bg-zinc-100/70 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900" />
         </div>
-
         <select id="filter-area" onchange="renderList()" class="px-3 py-2 rounded-xl border border-zinc-200 text-xs font-bold bg-white text-zinc-700">
           <option value="ALL">Tất cả khu vực</option>
         </select>
-
         <select id="filter-price" onchange="renderList()" class="px-3 py-2 rounded-xl border border-zinc-200 text-xs font-bold bg-white text-zinc-700">
           <option value="ALL">Mọi mức giá</option>
         </select>
-
-        <button
-          onclick="openModal('loginModal')"
-          class="hidden md:flex px-4 py-2 rounded-xl text-xs font-extrabold items-center gap-1.5 transition shadow-xs bg-zinc-900 text-white hover:bg-zinc-800"
-        >
+        <button onclick="openModal('loginModal')" class="hidden md:flex px-4 py-2 rounded-xl text-xs font-extrabold items-center gap-1.5 transition shadow-xs bg-zinc-900 text-white hover:bg-zinc-800">
           <i data-lucide="lock" class="w-3.5 h-3.5"></i> Đăng nhập Quản lý
         </button>
       </div>
-
     </div>
   </header>
 
-  <!-- THANH DANH MỤC TRƯỢT NGANG (CATEGORIES BAR) -->
+  <!-- THANH DANH MỤC TRƯỢT NGANG (Render Động) -->
   <div class="bg-white border-b border-zinc-200 px-4 md:px-8 py-2.5 shadow-xs overflow-x-auto no-scrollbar">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 min-w-max text-xs font-bold text-zinc-600">
-      <div class="flex items-center gap-6">
-        <button onclick="setCategoryFilter('ALL')" data-cat="ALL" class="cat-chip pb-2 border-b-2 border-zinc-900 text-zinc-900 transition flex items-center gap-1.5">🏠 Tất cả</button>
-        <button onclick="setCategoryFilter('HOT')" data-cat="HOT" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🔥 Căn Hot</button>
-        <button onclick="setCategoryFilter('PET')" data-cat="PET" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🐾 Nuôi Pet</button>
-        <button onclick="setCategoryFilter('BIKE')" data-cat="BIKE" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🚲 Xe điện</button>
-        <button onclick="setCategoryFilter('STUDIO')" data-cat="STUDIO" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🏢 Studio / 1PN</button>
+      <div id="category-bar-container" class="flex items-center gap-6">
+        <!-- JS sẽ gen danh mục vào đây -->
       </div>
-
-      <!-- Live Clock & KPI nhỏ -->
       <div class="hidden lg:flex items-center gap-3 text-zinc-500 font-medium">
         <span id="live-clock" class="text-[11px]"></span>
       </div>
@@ -122,8 +83,7 @@
 
   <!-- CONTAINER CHÍNH -->
   <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-6 w-full flex-1">
-
-    <!-- BẢNG ĐIỀU KHIỂN QUẢN TRỊ (HIỆN KHI ĐĂNG NHẬP) -->
+    <!-- BẢNG ĐIỀU KHIỂN QUẢN TRỊ -->
     <div id="admin-toolbar" class="hidden flex flex-wrap items-center justify-between gap-3 bg-zinc-900 text-white p-4 rounded-2xl shadow-md">
       <div class="flex items-center gap-2 text-xs font-extrabold">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -134,18 +94,16 @@
           <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm Căn Mới
         </button>
         <button onclick="openModal('agentsModal')" id="admin-agents-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
-          <i data-lucide="users" class="w-4 h-4"></i> Nhân sự & Link SĐT
+          <i data-lucide="users" class="w-4 h-4"></i> Nhân sự & Mã PIN
         </button>
         <button onclick="openSettingsModal()" id="admin-settings-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
-          <i data-lucide="sliders" class="w-4 h-4"></i> Cấu hình Khu vực / Giá
+          <i data-lucide="sliders" class="w-4 h-4"></i> Cấu hình App
         </button>
-        <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition">
-          Thoát
-        </button>
+        <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition">Thoát</button>
       </div>
     </div>
 
-    <!-- KHU VỰC THỐNG KÊ KPI NHANH -->
+    <!-- KHU VỰC KPI -->
     <div class="grid grid-cols-3 gap-3 md:gap-6">
       <div class="p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between">
         <div>
@@ -154,7 +112,6 @@
         </div>
         <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center font-bold text-sm md:text-base">🏢</div>
       </div>
-
       <div class="p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between">
         <div>
           <p class="text-[10px] md:text-xs font-bold uppercase text-emerald-600">Phòng Trống Sẵn</p>
@@ -162,7 +119,6 @@
         </div>
         <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm md:text-base">🟢</div>
       </div>
-
       <div class="p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between">
         <div>
           <p class="text-[10px] md:text-xs font-bold uppercase text-rose-500">Đang Có Khách</p>
@@ -172,16 +128,15 @@
       </div>
     </div>
 
-    <!-- LƯỚI HIỂN THỊ CĂN HỘ -->
+    <!-- LƯỚI CĂN HỘ -->
     <div id="room-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
   </main>
 
   <footer class="text-center py-6 text-xs text-zinc-400 border-t border-zinc-200 bg-white">
-    © 2026 Camy Airbnb Portfolio — Hệ thống số hóa quản lý phòng lưu trú
+    © 2026 Quản lý Hệ thống Lưu trú
   </footer>
 
-  <!-- ================= MODAL CHI TIẾT CĂN HỘ ================= -->
+  <!-- MODAL CHI TIẾT CĂN HỘ -->
   <div id="detailModal" class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
@@ -195,10 +150,9 @@
         <button onclick="closeModal('detailModal')" class="p-2 rounded-full text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <!-- Thư viện ảnh & Video -->
       <div id="detail-media-container" class="space-y-3">
         <div class="rounded-2xl overflow-hidden border border-zinc-200 bg-zinc-100 h-64 md:h-72">
-          <img id="detail-main-image" src="" class="w-full h-full object-cover" alt="Ảnh căn hộ" />
+          <img id="detail-main-image" src="" class="w-full h-full object-cover" />
         </div>
         <div id="detail-thumbnails" class="flex gap-2 overflow-x-auto no-scrollbar pb-1"></div>
       </div>
@@ -211,53 +165,46 @@
           <p id="detail-address" class="font-extrabold text-zinc-900 text-sm">--</p>
         </div>
         <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1">
-          <p class="text-zinc-400 font-bold uppercase text-[10px]">Giá thuê / đêm</p>
+          <p class="text-zinc-400 font-bold uppercase text-[10px]">Giá thuê</p>
           <p id="detail-price" class="font-extrabold text-rose-600 text-base">--</p>
         </div>
       </div>
 
       <div class="space-y-3 text-xs">
+        <!-- Render danh mục (tags) -->
+        <div class="flex flex-wrap gap-2 pt-1" id="detail-category-tags"></div>
         <div class="flex flex-wrap gap-2 pt-1" id="detail-amenities-tags"></div>
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
-            <span id="detail-pet">🐾 Cho nuôi Pet</span>
-          </div>
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
-            <span id="detail-bike">🚲 Xe đạp điện</span>
-          </div>
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
-            <span id="detail-capacity">👥 Tối đa người</span>
-          </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-2">
+          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">🛏️ <span id="detail-bedrooms">-- PN</span></div>
+          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">👥 <span id="detail-capacity">Tối đa -- người</span></div>
         </div>
 
         <div class="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1">
-          <p class="text-zinc-400 font-bold uppercase text-[10px]">Ghi chú cho khách hàng</p>
-          <p id="detail-note" class="text-zinc-700 font-medium leading-relaxed">Không có ghi chú</p>
+          <p class="text-zinc-400 font-bold uppercase text-[10px]">Ghi chú</p>
+          <p id="detail-note" class="text-zinc-700 font-medium leading-relaxed">Không có</p>
         </div>
 
-        <!-- Ghi chú nội bộ (Chỉ Admin/Manager thấy) -->
         <div id="detail-internal-note-box" class="hidden p-4 rounded-2xl bg-amber-50 border border-amber-200 space-y-1">
-          <p class="text-amber-700 font-bold uppercase text-[10px]">🔒 Ghi chú nội bộ (Khách không thấy)</p>
+          <p class="text-amber-700 font-bold uppercase text-[10px]">🔒 Ghi chú nội bộ</p>
           <p id="detail-internal-note" class="text-amber-950 font-medium">--</p>
         </div>
       </div>
 
       <div class="pt-3 border-t border-zinc-100 flex items-center justify-between gap-3">
-        <div class="text-xs text-zinc-600">
-          Liên hệ đặt phòng: <strong id="detail-phone" class="text-zinc-900">--</strong>
-        </div>
+        <div class="text-xs text-zinc-600">Liên hệ: <strong id="detail-phone" class="text-zinc-900">--</strong></div>
         <a id="detail-call-btn" href="#" class="px-6 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition">
-          <i data-lucide="phone-call" class="w-4 h-4"></i> Gọi Điện / Zalo
+          <i data-lucide="phone-call" class="w-4 h-4"></i> Gọi Điện
         </a>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL THÊM / SỬA PHÒNG ================= -->
+  <!-- MODAL THÊM / SỬA PHÒNG -->
   <div id="roomModal" class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 id="roomModalTitle" class="font-extrabold text-lg text-zinc-900">Thêm Căn Hộ Mới</h3>
+        <h3 id="roomModalTitle" class="font-extrabold text-lg text-zinc-900">Thêm Căn Mới</h3>
         <button onclick="closeModal('roomModal')" class="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
@@ -266,43 +213,53 @@
         
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block font-bold text-zinc-700 mb-1">Tên căn hộ / Phòng *</label>
-            <input type="text" id="room-name" required placeholder="VD: Camy Luxury #101" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
+            <label class="block font-bold text-zinc-700 mb-1">Tên căn hộ *</label>
+            <input type="text" id="room-name" required class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
           </div>
           <div>
-            <label class="block font-bold text-zinc-700 mb-1">Mã phòng (Code)</label>
-            <input type="text" id="room-code" placeholder="NT-01" class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-extrabold text-center uppercase" />
+            <label class="block font-bold text-zinc-700 mb-1">Mã phòng</label>
+            <input type="text" id="room-code" class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-extrabold text-center uppercase" />
           </div>
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-zinc-700 mb-1">Khu vực *</label>
-            <select id="room-area" required class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-semibold bg-white"></select>
+            <select id="room-area" required class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-semibold bg-white"></select>
           </div>
-          <div>
-            <label class="block font-bold text-zinc-700 mb-1">Giá tiền / đêm (₫) *</label>
-            <input type="number" step="10000" id="room-price" required placeholder="650000" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-extrabold text-rose-600" />
+          <div class="flex gap-2">
+            <div class="flex-1">
+              <label class="block font-bold text-zinc-700 mb-1">Mức Giá (₫) *</label>
+              <input type="number" step="10000" id="room-price" required class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-extrabold text-rose-600" />
+            </div>
+            <div class="w-24">
+              <label class="block font-bold text-zinc-700 mb-1">Theo</label>
+              <select id="room-price-unit" class="w-full px-2 py-2.5 rounded-xl border border-zinc-200 font-bold bg-white">
+                <option value="Đêm">Đêm</option>
+                <option value="Ngày">Ngày</option>
+                <option value="Tháng">Tháng</option>
+              </select>
+            </div>
           </div>
         </div>
 
         <div>
           <label class="block font-bold text-zinc-700 mb-1">Địa chỉ chi tiết *</label>
-          <input type="text" id="room-address" required placeholder="VD: Đường Trần Phú, Nha Trang" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
+          <input type="text" id="room-address" required class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div>
-            <label class="block font-bold text-zinc-700 mb-1">Số phòng ngủ *</label>
-            <input type="number" id="room-bedrooms" min="0" required value="1" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-bold text-center" />
+            <label class="block font-bold text-zinc-700 mb-1">Số PN *</label>
+            <input type="number" id="room-bedrooms" min="0" required value="1" class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-bold text-center" />
           </div>
           <div>
             <label class="block font-bold text-zinc-700 mb-1">Số khách *</label>
-            <input type="number" id="room-capacity" min="1" required value="2" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-bold text-center" />
+            <input type="number" id="room-capacity" min="1" required value="2" class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-bold text-center" />
           </div>
           <div>
-            <label class="block font-bold text-zinc-700 mb-1">Trạng thái *</label>
-            <select id="room-status" class="w-full px-2.5 py-2.5 rounded-xl border border-zinc-200 font-bold bg-white">
+            <label class="block font-bold text-zinc-700 mb-1">Trạng thái</label>
+            <select id="room-status" class="w-full px-2 py-2.5 rounded-xl border border-zinc-200 font-bold bg-white">
               <option value="Trống">🟢 Trống</option>
               <option value="Đang thuê">🔴 Đang Thuê</option>
               <option value="Đang dọn">🟡 Đang Dọn</option>
@@ -310,158 +267,124 @@
           </div>
         </div>
 
-        <div class="pt-1">
-          <label class="flex items-center gap-2.5 p-3 rounded-xl border border-amber-200 bg-amber-50/50 cursor-pointer">
-            <input type="checkbox" id="room-hot" class="w-4 h-4 rounded text-amber-600" />
-            <span class="font-extrabold text-amber-950">🔥 Đánh dấu là Căn Hot (Ghim lên đầu trang)</span>
-          </label>
-        </div>
-
-        <div class="grid grid-cols-2 gap-3">
-          <label class="flex items-center gap-2 p-3 rounded-xl border border-zinc-200 cursor-pointer bg-zinc-50">
-            <input type="checkbox" id="room-pet" class="w-4 h-4 rounded text-zinc-900" />
-            <span class="font-bold text-zinc-800">🐾 Cho nuôi Pet</span>
-          </label>
-          <label class="flex items-center gap-2 p-3 rounded-xl border border-zinc-200 cursor-pointer bg-zinc-50">
-            <input type="checkbox" id="room-bike" class="w-4 h-4 rounded text-zinc-900" />
-            <span class="font-bold text-zinc-800">🚲 Xe điện</span>
-          </label>
+        <!-- Render Dynamic Checkbox Categories -->
+        <div class="space-y-1 pt-1">
+          <label class="block font-bold text-zinc-700">Phân loại (Được tùy chỉnh trong Cấu Hình App)</label>
+          <div id="room-dynamic-categories" class="grid grid-cols-2 gap-2"></div>
         </div>
 
         <div>
-          <label class="block font-bold text-zinc-700 mb-1">Tiện ích (Phân cách bằng dấu phẩy) *</label>
-          <input type="text" id="room-amenities" required placeholder="Wifi tốc độ cao, Bếp nấu ăn, Ban công view biển..." class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
+          <label class="block font-bold text-zinc-700 mb-1">Tiện ích (Phân cách dấu phẩy)</label>
+          <input type="text" id="room-amenities" required class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
         </div>
 
         <div class="space-y-3 pt-1 border-t border-zinc-100">
-          <label class="block font-extrabold text-zinc-900">📸 Hình ảnh thư viện (Tự động nén tối ưu tải nhanh)</label>
+          <label class="block font-extrabold text-zinc-900">📸 Hình ảnh (Tự nén tải nhanh)</label>
           <div class="flex gap-2">
             <input type="file" id="room-media-files" accept="image/*" multiple class="hidden" onchange="handleMediaFilesUpload(event)" />
             <label for="room-media-files" class="flex-1 py-2.5 rounded-xl border-2 border-dashed border-zinc-300 bg-zinc-50 hover:bg-zinc-100 text-zinc-700 font-extrabold text-center cursor-pointer flex items-center justify-center gap-2 transition">
-              <i data-lucide="image-plus" class="w-4 h-4"></i> Chọn ảnh từ thiết bị
+              <i data-lucide="image-plus" class="w-4 h-4"></i> Chọn ảnh
             </label>
           </div>
           <div id="media-preview-container" class="flex gap-2 overflow-x-auto no-scrollbar py-1"></div>
         </div>
 
-        <div>
-          <label class="block font-bold text-zinc-700 mb-1">🔗 Link TikTok / Video giới thiệu</label>
-          <input type="url" id="room-social-link" placeholder="https://tiktok.com/@..." class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200" />
-        </div>
-
-        <div>
-          <label class="block font-bold text-zinc-700 mb-1">Số điện thoại mặc định (Chủ nhà)</label>
-          <input type="text" id="room-phone" placeholder="0905123456" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-bold" />
-        </div>
-
-        <div>
-          <label class="block font-bold text-zinc-700 mb-1">Ghi chú cho khách hàng</label>
-          <textarea id="room-note" rows="2" placeholder="Chính sách giờ giấc, lưu ý nhận phòng..." class="w-full px-3.5 py-2 rounded-xl border border-zinc-200"></textarea>
-        </div>
-
-        <div>
-          <label class="block font-bold text-amber-700 mb-1">🔒 Ghi chú nội bộ (Chỉ quản lý thấy)</label>
-          <textarea id="room-internal-note" rows="2" placeholder="Mật khẩu hộp khóa số, giá net chủ nhà..." class="w-full px-3.5 py-2 rounded-xl border border-amber-300 bg-amber-50/40 font-medium"></textarea>
-        </div>
+        <div><label class="block font-bold">Link Video</label><input type="url" id="room-social-link" class="w-full px-3 py-2 rounded-xl border border-zinc-200" /></div>
+        <div><label class="block font-bold">SĐT Mặc định</label><input type="text" id="room-phone" class="w-full px-3 py-2 rounded-xl border border-zinc-200" /></div>
+        <div><label class="block font-bold">Ghi chú khách</label><textarea id="room-note" rows="2" class="w-full px-3 py-2 rounded-xl border border-zinc-200"></textarea></div>
+        <div><label class="block font-bold text-amber-700">🔒 Ghi chú nội bộ</label><textarea id="room-internal-note" rows="2" class="w-full px-3 py-2 rounded-xl border border-amber-300 bg-amber-50/40"></textarea></div>
 
         <div class="flex justify-end gap-2 pt-3 border-t border-zinc-100">
-          <button type="button" onclick="closeModal('roomModal')" class="px-4 py-2.5 rounded-xl font-bold text-zinc-600 hover:bg-zinc-100">Hủy</button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl font-extrabold bg-zinc-900 hover:bg-zinc-800 text-white shadow-md">Lưu Căn Hộ</button>
+          <button type="button" onclick="closeModal('roomModal')" class="px-4 py-2.5 rounded-xl font-bold text-zinc-600 bg-zinc-100">Hủy</button>
+          <button type="submit" class="px-5 py-2.5 rounded-xl font-extrabold bg-zinc-900 text-white shadow-md">Lưu</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- ================= MODAL QUẢN LÝ NHÂN SỰ & LIÊN KẾT LINK (CHỈ ADMIN) ================= -->
+  <!-- MODAL NHÂN SỰ -->
   <div id="agentsModal" class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="font-extrabold text-lg text-zinc-900">Quản Lý Nhân Sự & Link Riêng (Affiliate)</h3>
-        <button onclick="closeModal('agentsModal')" class="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+        <h3 class="font-extrabold text-lg text-zinc-900">Quản Lý Nhân Sự & Mã PIN</h3>
+        <button onclick="closeModal('agentsModal'); cancelEditAgent();" class="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
       <div class="space-y-3 text-xs">
-        <p class="text-zinc-600 leading-relaxed">
-          Mỗi bạn nhân sự/quản lý có link riêng (chứa đuôi <code class="bg-zinc-100 px-1 py-0.5 rounded font-mono">?ref=...</code>). Khi khách bấm vào xem, toàn bộ nút gọi điện trên web sẽ kết nối đến số của bạn đó.
-        </p>
-
+        <p class="text-zinc-600">Tạo link chia sẻ riêng. Khách truy cập từ link sẽ thấy SĐT của bạn đó.</p>
         <div id="agents-list-container" class="space-y-2"></div>
 
-        <form onsubmit="addNewAgent(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-3 border-t border-zinc-100">
-          <div class="sm:col-span-4">
-            <input type="text" id="new-agent-name" required placeholder="Tên nhân sự" class="w-full px-3 py-2 rounded-xl border border-zinc-200 font-bold" />
-          </div>
-          <div class="sm:col-span-4">
-            <input type="text" id="new-agent-phone" required placeholder="SĐT hiển thị" class="w-full px-3 py-2 rounded-xl border border-zinc-200 font-bold" />
-          </div>
-          <div class="sm:col-span-4">
-            <button type="submit" class="w-full py-2 rounded-xl bg-zinc-900 text-white font-extrabold">+ Thêm Nhân Sự</button>
+        <form onsubmit="saveAgent(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-3 border-t border-zinc-100">
+          <div class="sm:col-span-3"><input type="text" id="agent-name" required placeholder="Tên" class="w-full px-3 py-2 rounded-xl border border-zinc-200 font-bold" /></div>
+          <div class="sm:col-span-3"><input type="text" id="agent-phone" required placeholder="SĐT" class="w-full px-3 py-2 rounded-xl border border-zinc-200 font-bold" /></div>
+          <div class="sm:col-span-3"><input type="text" id="agent-pin" required placeholder="Mã PIN (Tùy ý)" class="w-full px-3 py-2 rounded-xl border border-zinc-200 font-bold text-rose-600" /></div>
+          <div class="sm:col-span-3 flex gap-1">
+            <button type="submit" id="agent-submit-btn" class="flex-1 py-2 rounded-xl bg-zinc-900 text-white font-extrabold">Lưu</button>
+            <button type="button" id="agent-cancel-btn" onclick="cancelEditAgent()" class="hidden px-2 rounded-xl bg-zinc-200 text-zinc-700 font-bold">X</button>
           </div>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL CẤU HÌNH KHU VỰC & MỐC GIÁ ================= -->
+  <!-- MODAL CẤU HÌNH APP -->
   <div id="settingsModal" class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
     <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="font-extrabold text-lg text-zinc-900">Cấu Hình Khu Vực & Bộ Lọc Giá</h3>
+        <h3 class="font-extrabold text-lg text-zinc-900">Cấu Hình Ứng Dụng</h3>
         <button onclick="closeModal('settingsModal')" class="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <!-- Quản lý Khu Vực -->
+      <!-- Tên Trang -->
       <div class="space-y-2 text-xs">
-        <label class="block font-extrabold text-zinc-900">Danh Sách Khu Vực</label>
-        <div id="settings-area-tags" class="flex flex-wrap gap-2 py-1"></div>
-        <form onsubmit="addAreaCatalog(event)" class="flex gap-2 pt-1">
-          <input type="text" id="new-area-input" placeholder="Tên khu vực mới (VD: Bãi Dài)" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200 font-semibold" />
+        <label class="block font-extrabold text-zinc-900">Tên Thương Hiệu (Tiêu đề Web)</label>
+        <div class="flex gap-2">
+          <input type="text" id="setting-page-title" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200 font-bold" />
+          <button onclick="savePageTitle()" class="px-4 py-2 rounded-xl bg-zinc-900 text-white font-bold">Lưu</button>
+        </div>
+      </div>
+
+      <!-- Quản lý Danh mục hiển thị (Tags) -->
+      <div class="space-y-2 text-xs pt-3 border-t border-zinc-100">
+        <label class="block font-extrabold text-zinc-900">Danh Mục & Phân loại (Thanh menu trên cùng)</label>
+        <div id="settings-category-tags" class="flex flex-wrap gap-2 py-1"></div>
+        <form onsubmit="addCategoryCatalog(event)" class="flex gap-2 pt-1">
+          <input type="text" id="new-category-input" placeholder="VD: 🔥 Căn Hot, 🐾 Nuôi Pet" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200 font-semibold" />
           <button type="submit" class="px-4 py-2 rounded-xl bg-zinc-900 text-white font-bold">+ Thêm</button>
         </form>
       </div>
 
-      <!-- Quản lý Mốc Giá -->
+      <!-- Quản lý Khu Vực -->
       <div class="space-y-2 text-xs pt-3 border-t border-zinc-100">
-        <label class="block font-extrabold text-zinc-900">Mốc Giá Lọc (₫)</label>
+        <label class="block font-extrabold text-zinc-900">Khu Vực</label>
+        <div id="settings-area-tags" class="flex flex-wrap gap-2 py-1"></div>
+        <form onsubmit="addAreaCatalog(event)" class="flex gap-2 pt-1">
+          <input type="text" id="new-area-input" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200" />
+          <button type="submit" class="px-4 py-2 rounded-xl bg-zinc-900 text-white font-bold">+ Thêm</button>
+        </form>
+      </div>
+      
+      <!-- Quản lý Mốc Lọc Giá -->
+      <div class="space-y-2 text-xs pt-3 border-t border-zinc-100">
+        <label class="block font-extrabold text-zinc-900">Mốc Lọc Giá (₫)</label>
         <div id="settings-price-tags" class="flex flex-wrap gap-2 py-1"></div>
         <form onsubmit="addPriceCatalog(event)" class="flex gap-2 pt-1">
-          <input type="number" step="50000" id="new-price-input" placeholder="Mốc tiền (VD: 800000)" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200 font-semibold" />
-          <button type="submit" class="px-4 py-2 rounded-xl bg-zinc-900 text-white font-bold">+ Thêm mốc</button>
+          <input type="number" id="new-price-input" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200" />
+          <button type="submit" class="px-4 py-2 rounded-xl bg-zinc-900 text-white font-bold">+ Thêm</button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL ĐĂNG NHẬP / QUẢN TRỊ ================= -->
+  <!-- MODAL ĐĂNG NHẬP -->
   <div id="loginModal" class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-5">
-      <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 rounded-xl bg-zinc-100 text-zinc-900 flex items-center justify-center">
-            <i data-lucide="lock" class="w-4 h-4"></i>
-          </div>
-          <h3 class="font-extrabold text-base text-zinc-900">Đăng Nhập Quản Trị</h3>
-        </div>
-        <button onclick="closeModal('loginModal')" class="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
-      </div>
-
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-4">
+      <h3 class="font-extrabold text-base text-zinc-900 border-b border-zinc-100 pb-2">Đăng Nhập Quản Trị</h3>
       <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
-        <div>
-          <label class="block font-bold text-zinc-700 mb-1">Mã PIN Quản trị *</label>
-          <input type="password" id="login-pin-input" inputmode="numeric" required placeholder="Nhập PIN (VD: 8888)" class="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 text-center text-lg font-extrabold tracking-widest focus:outline-none focus:border-zinc-900" />
-        </div>
-
-        <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
-          <p class="font-extrabold text-zinc-900">💡 Hướng dẫn phân quyền:</p>
-          <ul class="list-disc list-inside text-zinc-600 space-y-1">
-            <li><strong>Mã PIN Admin (Mặc định: 8888):</strong> Toàn quyền thêm/sửa/xóa phòng, đổi cấu hình, tạo mã nhân sự.</li>
-            <li><strong>Mã PIN Quản lý:</strong> Quản lý có quyền cập nhật nhanh trạng thái trống/bận và thêm căn hộ mới.</li>
-          </ul>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closeModal('loginModal')" class="px-4 py-2 rounded-xl font-bold text-zinc-600">Hủy</button>
-          <button type="submit" class="px-5 py-2.5 rounded-xl font-extrabold bg-zinc-900 text-white shadow-md">Đăng Nhập</button>
+        <input type="password" id="login-pin-input" inputmode="numeric" required placeholder="Nhập PIN (VD: 8888)" class="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 text-center text-lg font-extrabold tracking-widest" />
+        <div class="flex justify-end gap-2">
+          <button type="button" onclick="closeModal('loginModal')" class="px-4 py-2 rounded-xl font-bold bg-zinc-100">Hủy</button>
+          <button type="submit" class="px-5 py-2 rounded-xl font-extrabold bg-zinc-900 text-white">Vào</button>
         </div>
       </form>
     </div>
@@ -472,649 +395,159 @@
     <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
     <span id="toast-msg">Đã lưu!</span>
   </div>
-
-  <!-- ================= JAVASCRIPT ENGINE ================= -->
-  <script>
+    <script>
     const DATABASE_URL = 'https://canhonhatrang-default-rtdb.firebaseio.com/';
-    const DB_ROOT_PATH = 'camy_airbnb_portfolio_v3';
+    const DB_ROOT_PATH = 'camy_airbnb_portfolio_v4';
 
     let db = null;
     let rootRef = null;
-    let currentUserRole = null; // 'admin', 'manager', or null
-    let currentAgent = null; // Thông tin nhân sự nếu khách vào từ link ?ref=...
+    let currentUserRole = null; 
+    let currentAgent = null; 
     let currentEditMediaList = [];
     let currentCategoryFilter = 'ALL';
+    let editingAgentId = null;
 
     const DEFAULT_DB_DATA = {
       meta: {
+        pageTitle: 'Camy Airbnb Portfolio',
         adminPin: '8888',
-        areas: ['Nha Trang', 'Cam Ranh', 'Bãi Dài', 'Khu vực khác'],
+        areas: ['Nha Trang', 'Cam Ranh', 'Bãi Dài'],
+        categories: ['🔥 Căn Hot', '🐾 Nuôi Pet', '🚲 Xe điện', '🏢 Studio / 1PN'],
         priceMilestones: [500000, 1000000, 2000000],
         agents: {
-          'tu': { id: 'tu', name: 'Chủ Quản Lý', phone: '0905123456', pin: '8888', role: 'admin' },
-          'minh': { id: 'minh', name: 'Quản Lý Minh', phone: '0988999888', pin: '1234', role: 'manager' }
+          'tu': { id: 'tu', name: 'Chủ Quản Lý', phone: '0905123456', pin: '8888', role: 'admin' }
         }
       },
-      rooms: {
-        'room-1': {
-          id: 'room-1',
-          name: 'Camy Luxury Sea View Apartment #101',
-          code: 'NT-01',
-          area: 'Nha Trang',
-          address: 'Đường Trần Phú, Nha Trang',
-          price: 650000,
-          bedrooms: 1,
-          capacity: 3,
-          status: 'Trống',
-          isHot: true,
-          petAllowed: true,
-          bikeAllowed: true,
-          amenities: 'Wifi tốc độ cao, Bếp nấu ăn đầy đủ, Ban công view biển, Máy giặt riêng, Hồ bơi vô cực',
-          phone: '0905123456',
-          mediaList: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80'],
-          socialLink: 'https://tiktok.com',
-          note: 'Miễn phí nước suối, trà và cà phê chào mừng.',
-          internalNote: 'Giá net chủ nhà 500k. Mật khẩu hộp khóa: 1234.'
-        }
-      }
-    };
-
-    let appData = {
-      meta: { ...DEFAULT_DB_DATA.meta },
       rooms: {}
     };
 
+    let appData = { meta: { ...DEFAULT_DB_DATA.meta }, rooms: {} };
+
     function initRealtimeFirebase() {
-      try {
-        firebase.initializeApp({ databaseURL: DATABASE_URL });
-        db = firebase.database();
-        rootRef = db.ref(DB_ROOT_PATH);
+      firebase.initializeApp({ databaseURL: DATABASE_URL });
+      db = firebase.database();
+      rootRef = db.ref(DB_ROOT_PATH);
 
-        const urlParams = new URLSearchParams(window.location.search);
-        const refCode = urlParams.get('ref');
+      const refCode = new URLSearchParams(window.location.search).get('ref');
 
-        rootRef.on('value', (snapshot) => {
-          const val = snapshot.val();
-          if (!val) {
-            rootRef.set(DEFAULT_DB_DATA);
-            return;
-          }
-          appData.meta = val.meta || DEFAULT_DB_DATA.meta;
-          if (!appData.meta.agents) appData.meta.agents = DEFAULT_DB_DATA.meta.agents;
-          appData.rooms = val.rooms || {};
+      rootRef.on('value', (snapshot) => {
+        const val = snapshot.val();
+        if (!val) { rootRef.set(DEFAULT_DB_DATA); return; }
+        
+        appData.meta = { ...DEFAULT_DB_DATA.meta, ...val.meta };
+        appData.rooms = val.rooms || {};
 
-          if (refCode && appData.meta.agents[refCode]) {
-            currentAgent = appData.meta.agents[refCode];
-            const sub = document.getElementById('agent-welcome-sub');
-            if (sub) sub.textContent = `Hỗ trợ bởi: ${currentAgent.name} (${currentAgent.phone})`;
-          }
+        document.title = appData.meta.pageTitle;
+        document.getElementById('brand-title').textContent = appData.meta.pageTitle;
 
-          renderList();
-        });
-      } catch (err) {
-        console.error('Firebase error:', err);
-      }
+        if (refCode && appData.meta.agents && appData.meta.agents[refCode]) {
+          currentAgent = appData.meta.agents[refCode];
+          document.getElementById('agent-welcome-sub').textContent = `Hỗ trợ bởi: ${currentAgent.name}`;
+        }
+        
+        renderCategoriesBar();
+        renderList();
+      });
+    }
+
+    function renderCategoriesBar() {
+      const cats = appData.meta.categories || [];
+      const box = document.getElementById('category-bar-container');
+      let html = `<button onclick="setCategoryFilter('ALL')" class="cat-chip pb-2 border-b-2 ${currentCategoryFilter === 'ALL' ? 'border-zinc-900 text-zinc-900 font-extrabold' : 'border-transparent text-zinc-500'} transition flex items-center gap-1.5 whitespace-nowrap">🏠 Tất cả</button>`;
+      
+      cats.forEach(c => {
+        const act = currentCategoryFilter === c;
+        html += `<button onclick="setCategoryFilter('${c}')" class="cat-chip pb-2 border-b-2 ${act ? 'border-zinc-900 text-zinc-900 font-extrabold' : 'border-transparent text-zinc-500'} transition flex items-center gap-1.5 whitespace-nowrap">${escapeHtml(c)}</button>`;
+      });
+      box.innerHTML = html;
     }
 
     function setCategoryFilter(cat) {
       currentCategoryFilter = cat;
-      document.querySelectorAll('.cat-chip').forEach(btn => {
-        const active = btn.getAttribute('data-cat') === cat;
-        btn.className = `cat-chip pb-2 border-b-2 transition flex items-center gap-1.5 ${
-          active ? 'border-zinc-900 text-zinc-900 font-extrabold' : 'border-transparent text-zinc-500 hover:text-zinc-900'
-        }`;
-      });
+      renderCategoriesBar();
       renderList();
     }
 
     function handleLoginSubmit(e) {
       e.preventDefault();
-      const entered = document.getElementById('login-pin-input').value.trim();
-      const agents = appData.meta?.agents || {};
+      const pin = document.getElementById('login-pin-input').value.trim();
+      const ags = appData.meta.agents || {};
       
-      let matchedRole = null;
-      if (entered === String(appData.meta?.adminPin || '8888')) {
-        matchedRole = 'admin';
-      } else {
-        const found = Object.values(agents).find(ag => String(ag.pin) === entered);
-        if (found) matchedRole = found.role || 'manager';
+      let role = null;
+      if (pin === String(appData.meta.adminPin || '8888')) role = 'admin';
+      else {
+        const f = Object.values(ags).find(a => String(a.pin) === pin);
+        if (f) role = f.role || 'manager';
       }
 
-      if (matchedRole) {
-        currentUserRole = matchedRole;
+      if (role) {
+        currentUserRole = role;
         closeModal('loginModal');
         document.getElementById('login-pin-input').value = '';
         renderList();
-        showToast(currentUserRole === 'admin' ? '🔓 Đã đăng nhập Quyền Admin tối cao!' : '🔓 Đã đăng nhập Quyền Quản lý!');
-      } else {
-        alert('Mã PIN không chính xác!');
-      }
+        showToast(role === 'admin' ? '🔓 Đăng nhập Admin' : '🔓 Đăng nhập Quản lý');
+      } else alert('Mã PIN sai!');
     }
+    
+    function handleLogout() { currentUserRole = null; renderList(); showToast('🔒 Đã thoát'); }
 
-    function handleLogout() {
-      currentUserRole = null;
-      renderList();
-      showToast('🔒 Đã đăng xuất khỏi phiên làm việc!');
-    }
-
-    function addNewAgent(e) {
-      e.preventDefault();
-      if (currentUserRole !== 'admin') { alert('Chỉ có Admin mới được thêm nhân sự!'); return; }
-      const name = document.getElementById('new-agent-name').value.trim();
-      const phone = document.getElementById('new-agent-phone').value.trim();
-      if (!name || !phone) return;
-
-      const id = 'agent-' + Date.now().toString(36);
-      const pin = Math.floor(1000 + Math.random() * 9000).toString();
-
-      rootRef.child(`meta/agents/${id}`).set({
-        id, name, phone, pin, role: 'manager'
-      });
-
-      document.getElementById('new-agent-name').value = '';
-      document.getElementById('new-agent-phone').value = '';
-      showToast(`Đã thêm ${name} (Mã PIN: ${pin})`);
-      renderAgentsModalList();
-    }
-
-    function deleteAgent(id) {
-      if (currentUserRole !== 'admin') { alert('Chỉ có Admin mới được xóa nhân sự!'); return; }
-      if (confirm('Xóa nhân sự này khỏi hệ thống?')) {
-        rootRef.child(`meta/agents/${id}`).remove();
-        showToast('Đã xóa nhân sự');
-        renderAgentsModalList();
-      }
-    }
-
+    // --- AGENT (NHÂN SỰ) LOGIC ---
     function renderAgentsModalList() {
-      const container = document.getElementById('agents-list-container');
-      if (!container) return;
-      const agents = appData.meta?.agents || {};
+      const box = document.getElementById('agents-list-container');
       const baseUrl = window.location.origin + window.location.pathname;
-
-      container.innerHTML = Object.values(agents).map(ag => {
-        const shareLink = `${baseUrl}?ref=${ag.id}`;
-        return `
-          <div class="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1.5">
-            <div class="flex items-center justify-between">
-              <span class="font-extrabold text-zinc-900">${escapeHtml(ag.name)} (${ag.role === 'admin' ? 'Admin' : 'Quản lý'})</span>
+      const ags = appData.meta.agents || {};
+      
+      box.innerHTML = Object.values(ags).map(ag => `
+        <div class="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-extrabold text-zinc-900">${escapeHtml(ag.name)} (${ag.role})</span>
+            <div class="flex gap-2">
+              <button onclick="editAgent('${ag.id}')" class="text-blue-600 font-bold hover:underline">Sửa</button>
               ${ag.role !== 'admin' ? `<button onclick="deleteAgent('${ag.id}')" class="text-rose-600 font-bold hover:underline">Xóa</button>` : ''}
             </div>
-            <p class="text-zinc-600">SĐT hiển thị: <strong>${escapeHtml(ag.phone)}</strong> • PIN: <strong>${ag.pin}</strong></p>
-            <div class="flex gap-2 pt-1">
-              <input type="text" readonly value="${shareLink}" class="flex-1 px-2.5 py-1.5 rounded-lg bg-white border border-zinc-200 text-[11px] text-zinc-500 font-mono select-all" />
-              <button onclick="navigator.clipboard.writeText('${shareLink}'); showToast('Đã copy link của ${escapeHtml(ag.name)}!');" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-bold shrink-0">Copy Link</button>
-            </div>
           </div>
-        `;
-      }).join('');
-    }
-
-    function openSettingsModal() {
-      const areas = appData.meta?.areas || [];
-      const prices = appData.meta?.priceMilestones || [];
-
-      document.getElementById('settings-area-tags').innerHTML = areas.map((a, i) => `
-        <div class="inline-flex items-center gap-1 bg-zinc-100 border border-zinc-200 text-zinc-900 px-3 py-1 rounded-xl text-xs font-bold">
-          <span>${escapeHtml(a)}</span>
-          <button type="button" onclick="deleteAreaCatalog(${i})" class="text-zinc-400 hover:text-red-600 ml-1">×</button>
+          <p class="text-zinc-600">SĐT: <strong>${escapeHtml(ag.phone)}</strong> • PIN: <strong>${ag.pin}</strong></p>
+          <input type="text" readonly value="${baseUrl}?ref=${ag.id}" class="w-full px-2 py-1 rounded-lg bg-white border border-zinc-200 text-[11px] text-zinc-500 font-mono" />
         </div>
       `).join('');
-
-      document.getElementById('settings-price-tags').innerHTML = prices.map((p, i) => `
-        <div class="inline-flex items-center gap-1 bg-zinc-100 border border-zinc-200 text-zinc-900 px-3 py-1 rounded-xl text-xs font-bold">
-          <span>Dưới ${Number(p).toLocaleString('vi-VN')}₫</span>
-          <button type="button" onclick="deletePriceCatalog(${i})" class="text-zinc-400 hover:text-red-600 ml-1">×</button>
-        </div>
-      `).join('');
-
-      openModal('settingsModal');
     }
 
-    function addAreaCatalog(e) {
+    function editAgent(id) {
+      const ag = appData.meta.agents[id];
+      if(!ag) return;
+      document.getElementById('agent-name').value = ag.name;
+      document.getElementById('agent-phone').value = ag.phone;
+      document.getElementById('agent-pin').value = ag.pin;
+      editingAgentId = id;
+      document.getElementById('agent-submit-btn').textContent = 'Lưu sửa';
+      document.getElementById('agent-cancel-btn').classList.remove('hidden');
+    }
+
+    function cancelEditAgent() {
+      editingAgentId = null;
+      document.getElementById('agent-name').value = '';
+      document.getElementById('agent-phone').value = '';
+      document.getElementById('agent-pin').value = '';
+      document.getElementById('agent-submit-btn').textContent = 'Lưu';
+      document.getElementById('agent-cancel-btn').classList.add('hidden');
+    }
+
+    function saveAgent(e) {
       e.preventDefault();
-      const val = document.getElementById('new-area-input').value.trim();
-      const areas = Array.isArray(appData.meta?.areas) ? [...appData.meta.areas] : [];
-      if (val && !areas.includes(val)) {
-        areas.push(val);
-        rootRef.child('meta/areas').set(areas);
-        document.getElementById('new-area-input').value = '';
-        showToast('Đã thêm khu vực!');
-        openSettingsModal();
-      }
-    }
-
-    function deleteAreaCatalog(idx) {
-      const areas = Array.isArray(appData.meta?.areas) ? [...appData.meta.areas] : [];
-      if (areas.length <= 1) { alert('Cần giữ lại ít nhất 1 khu vực!'); return; }
-      areas.splice(idx, 1);
-      rootRef.child('meta/areas').set(areas);
-      showToast('Đã xóa khu vực');
-      openSettingsModal();
-    }
-
-    function addPriceCatalog(e) {
-      e.preventDefault();
-      const p = parseFloat(document.getElementById('new-price-input').value);
-      const prices = Array.isArray(appData.meta?.priceMilestones) ? [...appData.meta.priceMilestones] : [];
-      if (!isNaN(p) && p > 0 && !prices.includes(p)) {
-        prices.push(p);
-        prices.sort((a, b) => a - b);
-        rootRef.child('meta/priceMilestones').set(prices);
-        document.getElementById('new-price-input').value = '';
-        showToast('Đã thêm mốc giá!');
-        openSettingsModal();
-      }
-    }
-
-    function deletePriceCatalog(idx) {
-      const prices = Array.isArray(appData.meta?.priceMilestones) ? [...appData.meta.priceMilestones] : [];
-      prices.splice(idx, 1);
-      rootRef.child('meta/priceMilestones').set(prices);
-      showToast('Đã xóa mốc giá');
-      openSettingsModal();
-    }
-
-    // Nén ảnh tự động qua Canvas để chống tràn dung lượng Firebase Realtime Database
-    function compressImage(file, maxWidth = 1200, quality = 0.72) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (e) => {
-          const img = new Image();
-          img.src = e.target.result;
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-            resolve(canvas.toDataURL('image/jpeg', quality));
-          };
-          img.onerror = () => resolve(e.target.result);
-        };
-      });
-    }
-
-    async function handleMediaFilesUpload(event) {
-      const files = event.target.files;
-      if (!files || files.length === 0) return;
-      showToast('Đang nén ảnh & chuẩn bị lưu...');
-      for (const file of Array.from(files)) {
-        const compressedBase64 = await compressImage(file);
-        currentEditMediaList.push(compressedBase64);
-      }
-      renderMediaPreviewInForm();
-      showToast('Đã thêm ảnh vào bộ sưu tập!');
-    }
-
-    function renderMediaPreviewInForm() {
-      const container = document.getElementById('media-preview-container');
-      if (!container) return;
-      container.innerHTML = currentEditMediaList.map((src, idx) => `
-        <div class="relative w-20 h-20 rounded-xl overflow-hidden border border-zinc-200 shrink-0 bg-zinc-100">
-          <img src="${src}" class="w-full h-full object-cover" />
-          <button type="button" onclick="currentEditMediaList.splice(${idx}, 1); renderMediaPreviewInForm();" class="absolute top-1 right-1 bg-zinc-900 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] font-bold">×</button>
-        </div>
-      `).join('');
-    }
-
-    function formatCurrency(val) {
-      return Number(val || 0).toLocaleString('vi-VN') + ' ₫ / đêm';
-    }
-
-    function renderList() {
-      const toolbar = document.getElementById('admin-toolbar');
-      const agentsBtn = document.getElementById('admin-agents-btn');
-      const settingsBtn = document.getElementById('admin-settings-btn');
-      const greeting = document.getElementById('admin-greeting-text');
-
-      if (currentUserRole) {
-        toolbar?.classList.remove('hidden');
-        if (currentUserRole === 'admin') {
-          agentsBtn?.classList.remove('hidden');
-          settingsBtn?.classList.remove('hidden');
-          if (greeting) greeting.textContent = 'Đang ở chế độ Admin tối cao';
-        } else {
-          agentsBtn?.classList.add('hidden');
-          settingsBtn?.classList.add('hidden');
-          if (greeting) greeting.textContent = 'Đang ở chế độ Quản lý phòng';
-        }
-      } else {
-        toolbar?.classList.add('hidden');
-      }
-
-      const areas = appData.meta?.areas || [];
-      const prices = appData.meta?.priceMilestones || [];
-
-      const areaSel = document.getElementById('filter-area');
-      const currentArea = areaSel.value;
-      areaSel.innerHTML = `<option value="ALL">Tất cả khu vực</option>` + areas.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
-      if (areas.includes(currentArea)) areaSel.value = currentArea;
-
-      const priceSel = document.getElementById('filter-price');
-      const currentPrice = priceSel.value;
-      priceSel.innerHTML = `<option value="ALL">Mọi mức giá</option>` + prices.map(p => `<option value="${p}">Dưới ${Number(p).toLocaleString('vi-VN')}₫</option>`).join('');
-      if (currentPrice) priceSel.value = currentPrice;
-
-      const roomsList = Object.values(appData.rooms || {});
-      const totalRooms = roomsList.length;
-      const emptyRooms = roomsList.filter(r => r.status === 'Trống').length;
-      const busyRooms = totalRooms - emptyRooms;
-
-      // Cập nhật KPI an toàn
-      const kpiTotal = document.getElementById('kpi-total-rooms');
-      const kpiEmpty = document.getElementById('kpi-empty-rooms');
-      const kpiBusy = document.getElementById('kpi-busy-rooms');
-      if (kpiTotal) kpiTotal.textContent = totalRooms;
-      if (kpiEmpty) kpiEmpty.textContent = emptyRooms;
-      if (kpiBusy) kpiBusy.textContent = busyRooms;
-
-      const searchQuery = (document.getElementById('search-input')?.value || '').toLowerCase();
-      const areaFilter = areaSel.value;
-      const priceFilter = priceSel.value;
-
-      let filtered = roomsList.filter(r => {
-        const matchSearch = !searchQuery ||
-          (r.name || '').toLowerCase().includes(searchQuery) ||
-          (r.address || '').toLowerCase().includes(searchQuery) ||
-          (r.code || '').toLowerCase().includes(searchQuery) ||
-          (r.amenities || '').toLowerCase().includes(searchQuery);
-
-        const matchArea = areaFilter === 'ALL' || r.area === areaFilter;
-
-        const price = Number(r.price) || 0;
-        let matchPrice = true;
-        if (priceFilter !== 'ALL') {
-          matchPrice = price < Number(priceFilter);
-        }
-
-        return matchSearch && matchArea && matchPrice;
-      });
-
-      // Lọc theo Category Tabs
-      if (currentCategoryFilter === 'HOT') {
-        filtered = filtered.filter(r => r.isHot);
-      } else if (currentCategoryFilter === 'PET') {
-        filtered = filtered.filter(r => r.petAllowed);
-      } else if (currentCategoryFilter === 'BIKE') {
-        filtered = filtered.filter(r => r.bikeAllowed);
-      } else if (currentCategoryFilter === 'STUDIO') {
-        filtered = filtered.filter(r => Number(r.bedrooms) <= 1);
-      }
-
-      // Ghim Căn Hot lên đầu
-      filtered.sort((a, b) => (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0));
-
-      const grid = document.getElementById('room-grid');
-      if (!grid) return;
-
-      if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full p-12 text-center text-sm text-zinc-400 bg-white rounded-3xl border border-zinc-200">Không tìm thấy căn hộ hoặc phòng phù hợp.</div>`;
-        return;
-      }
-
-      grid.innerHTML = filtered.map(r => {
-        const statusBadge = r.status === 'Trống' ? 'bg-emerald-100 text-emerald-800' :
-                            r.status === 'Đang thuê' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800';
-
-        const coverImg = (Array.isArray(r.mediaList) && r.mediaList.length > 0) ? r.mediaList[0] : (r.imageUrl || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80');
-
-        return `
-          <div class="bg-white rounded-3xl border border-zinc-200 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition group">
-            <div>
-              <div class="relative h-56 overflow-hidden bg-zinc-100 cursor-pointer" onclick="openDetailModal('${r.id}')">
-                <img src="${coverImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${escapeHtml(r.name)}" />
-                <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                  ${r.isHot ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs bg-amber-500 text-white">🔥 Căn Hot</span>' : ''}
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge}">${escapeHtml(r.status || 'Trống')}</span>
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-zinc-900/80 text-white backdrop-blur-xs">${escapeHtml(r.area || 'Khu vực')}</span>
-                </div>
-                <div class="absolute bottom-3 right-3 bg-zinc-900/80 backdrop-blur-xs text-white px-3 py-1.5 rounded-2xl text-xs font-extrabold shadow">
-                  ${formatCurrency(r.price)}
-                </div>
-              </div>
-
-              <div class="p-5 space-y-3">
-                <div>
-                  <div class="flex items-center justify-between">
-                    <p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">📍 ${escapeHtml(r.address)}</p>
-                    ${r.code ? `<span class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">Mã: ${escapeHtml(r.code)}</span>` : ''}
-                  </div>
-                  <h3 onclick="openDetailModal('${r.id}')" class="font-extrabold text-zinc-900 text-base md:text-lg mt-1 cursor-pointer hover:text-rose-600 transition line-clamp-1">${escapeHtml(r.name)}</h3>
-                </div>
-
-                <div class="flex flex-wrap gap-1.5">
-                  <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-zinc-100 text-zinc-700">🛏️ ${r.bedrooms || 1} PN</span>
-                  <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-zinc-100 text-zinc-700">👥 ${r.capacity || 2} khách</span>
-                  ${r.petAllowed ? '<span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-amber-50 text-amber-800">🐾 Pet</span>' : ''}
-                  ${r.bikeAllowed ? '<span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-blue-50 text-blue-800">🚲 Xe điện</span>' : ''}
-                </div>
-
-                <p class="text-xs text-zinc-500 line-clamp-2">${escapeHtml(r.amenities)}</p>
-              </div>
-            </div>
-
-            <div class="p-4 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between gap-2">
-              <button onclick="openDetailModal('${r.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs transition flex items-center justify-center gap-1.5">
-                <i data-lucide="eye" class="w-4 h-4"></i> Xem Chi Tiết
-              </button>
-              ${currentUserRole ? `
-                <button onclick="openRoomModal('${r.id}')" class="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs transition">Sửa</button>
-                <button onclick="deleteRoom('${r.id}')" class="py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition">Xóa</button>
-              ` : ''}
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      lucide.createIcons();
-    }
-
-    function openDetailModal(roomId) {
-      const r = appData.rooms[roomId];
-      if (!r) return;
-
-      document.getElementById('detail-name').textContent = r.name;
-      document.getElementById('detail-address').textContent = `${r.area} — ${r.address}`;
-      document.getElementById('detail-price').textContent = formatCurrency(r.price);
-      document.getElementById('detail-note').textContent = r.note || 'Không có ghi chú thêm.';
-      document.getElementById('detail-capacity').textContent = `Tối đa ${r.capacity || 2} người`;
+      if (currentUserRole !== 'admin') { alert('Chỉ Admin mới có quyền!'); return; }
+      const name = document.getElementById('agent-name').value.trim();
+      const phone = document.getElementById('agent-phone').value.trim();
+      const pin = document.getElementById('agent-pin').value.trim();
       
-      const codeEl = document.getElementById('detail-code');
-      codeEl.textContent = r.code ? `Mã: ${r.code}` : 'Camy Home';
+      const id = editingAgentId || ('agent-' + Date.now().toString(36));
+      const role = (appData.meta.agents && appData.meta.agents[id]) ? appData.meta.agents[id].role : 'manager';
 
-      const mediaArr = (Array.isArray(r.mediaList) && r.mediaList.length > 0) ? r.mediaList : [r.imageUrl || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80'];
-      document.getElementById('detail-main-image').src = mediaArr[0];
-
-      const thumbBox = document.getElementById('detail-thumbnails');
-      thumbBox.innerHTML = mediaArr.map((src) => `
-        <img src="${src}" onclick="document.getElementById('detail-main-image').src='${src}'" class="w-16 h-16 rounded-xl object-cover border-2 border-zinc-200 cursor-pointer hover:border-zinc-900 shrink-0" />
-      `).join('');
-
-      const socialBox = document.getElementById('detail-social-box');
-      if (r.socialLink) {
-        socialBox.classList.remove('hidden');
-        socialBox.innerHTML = `<a href="${escapeHtml(r.socialLink)}" target="_blank" class="px-3.5 py-2 rounded-xl bg-zinc-100 text-zinc-900 font-extrabold text-xs border border-zinc-200 flex items-center gap-1.5"><i data-lucide="video" class="w-3.5 h-3.5"></i> Xem Video Giới Thiệu (TikTok/FB)</a>`;
-      } else {
-        socialBox.classList.add('hidden');
-      }
-
-      const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
-      document.getElementById('detail-phone').textContent = phoneToUse;
-      document.getElementById('detail-call-btn').href = `tel:${phoneToUse}`;
-
-      const internalBox = document.getElementById('detail-internal-note-box');
-      const internalText = document.getElementById('detail-internal-note');
-      if (currentUserRole && r.internalNote) {
-        internalBox.classList.remove('hidden');
-        internalText.textContent = r.internalNote;
-      } else {
-        internalBox.classList.add('hidden');
-      }
-
-      const statusBadge = document.getElementById('detail-status-badge');
-      statusBadge.className = `text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${r.status === 'Trống' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
-      statusBadge.textContent = r.status || 'Trống';
-
-      const amenitiesArr = (r.amenities || '').split(',').map(s => s.trim()).filter(Boolean);
-      document.getElementById('detail-amenities-tags').innerHTML = amenitiesArr.map(a => `<span class="px-3 py-1 rounded-xl bg-zinc-100 text-zinc-800 font-bold text-xs border border-zinc-200">✨ ${escapeHtml(a)}</span>`).join('');
-
-      openModal('detailModal');
+      rootRef.child(`meta/agents/${id}`).set({ id, name, phone, pin, role }); showToast('Đã lưu nhân sự!'); cancelEditAgent(); renderAgentsModalList(); }  function deleteAgent(id) { if (confirm('Xóa nhân sự này?')) { rootRef.child(`meta/agents/${id}`).remove(); renderAgentsModalList(); }
     }
 
-    function openRoomModal(roomId) {
-      if (!currentUserRole) return;
-      const areas = appData.meta?.areas || ['Nha Trang'];
-      const areaSel = document.getElementById('room-area');
-      areaSel.innerHTML = areas.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
-
-      currentEditMediaList = [];
-
-      if (roomId && appData.rooms[roomId]) {
-        const r = appData.rooms[roomId];
-        document.getElementById('roomModalTitle').textContent = 'Chỉnh Sửa Thông Tin Căn Hộ';
-        document.getElementById('room-id').value = r.id;
-        document.getElementById('room-name').value = r.name;
-        document.getElementById('room-code').value = r.code || '';
-        document.getElementById('room-area').value = r.area || areas[0];
-        document.getElementById('room-address').value = r.address;
-        document.getElementById('room-price').value = r.price;
-        document.getElementById('room-bedrooms').value = r.bedrooms || 1;
-        document.getElementById('room-capacity').value = r.capacity || 2;
-        document.getElementById('room-status').value = r.status || 'Trống';
-        document.getElementById('room-hot').checked = !!r.isHot;
-        document.getElementById('room-pet').checked = !!r.petAllowed;
-        document.getElementById('room-bike').checked = !!r.bikeAllowed;
-        document.getElementById('room-amenities').value = r.amenities || '';
-        document.getElementById('room-phone').value = r.phone || '';
-        document.getElementById('room-social-link').value = r.socialLink || '';
-        document.getElementById('room-note').value = r.note || '';
-        document.getElementById('room-internal-note').value = r.internalNote || '';
-
-        if (Array.isArray(r.mediaList) && r.mediaList.length > 0) {
-          currentEditMediaList = [...r.mediaList];
-        } else if (r.imageUrl) {
-          currentEditMediaList = [r.imageUrl];
-        }
-      } else {
-        document.getElementById('roomModalTitle').textContent = 'Thêm Căn Hộ / Phòng Mới';
-        document.getElementById('room-id').value = '';
-        document.getElementById('room-name').value = '';
-        document.getElementById('room-code').value = '';
-        document.getElementById('room-area').value = areas[0];
-        document.getElementById('room-address').value = '';
-        document.getElementById('room-price').value = 500000;
-        document.getElementById('room-bedrooms').value = 1;
-        document.getElementById('room-capacity').value = 2;
-        document.getElementById('room-status').value = 'Trống';
-        document.getElementById('room-hot').checked = false;
-        document.getElementById('room-pet').checked = true;
-        document.getElementById('room-bike').checked = true;
-        document.getElementById('room-amenities').value = 'Wifi, Bếp, Điều hòa';
-        document.getElementById('room-phone').value = '0905123456';
-        document.getElementById('room-social-link').value = '';
-        document.getElementById('room-note').value = '';
-        document.getElementById('room-internal-note').value = '';
-      }
-      renderMediaPreviewInForm();
-      openModal('roomModal');
-    }
-
-    function saveRoomForm(e) {
-      e.preventDefault();
-      if (!currentUserRole) return;
-      const id = document.getElementById('room-id').value || ('room-' + Date.now());
-      const roomData = {
-        id,
-        name: document.getElementById('room-name').value.trim(),
-        code: document.getElementById('room-code').value.trim().toUpperCase(),
-        area: document.getElementById('room-area').value,
-        address: document.getElementById('room-address').value.trim(),
-        price: parseFloat(document.getElementById('room-price').value) || 0,
-        bedrooms: parseInt(document.getElementById('room-bedrooms').value, 10) || 1,
-        capacity: parseInt(document.getElementById('room-capacity').value, 10) || 2,
-        status: document.getElementById('room-status').value,
-        isHot: document.getElementById('room-hot').checked,
-        petAllowed: document.getElementById('room-pet').checked,
-        bikeAllowed: document.getElementById('room-bike').checked,
-        amenities: document.getElementById('room-amenities').value.trim(),
-        phone: document.getElementById('room-phone').value.trim(),
-        mediaList: currentEditMediaList,
-        imageUrl: currentEditMediaList.length > 0 ? currentEditMediaList[0] : '',
-        socialLink: document.getElementById('room-social-link').value.trim(),
-        note: document.getElementById('room-note').value.trim(),
-        internalNote: document.getElementById('room-internal-note').value.trim()
-      };
-
-      rootRef.child(`rooms/${id}`).set(roomData);
-      closeModal('roomModal');
-      showToast('Đã lưu thông tin căn hộ!');
-    }
-
-    function deleteRoom(id) {
-      if (!currentUserRole) return;
-      const r = appData.rooms[id];
-      if (r && confirm(`Xóa phòng "${r.name}" khỏi danh mục?`)) {
-        rootRef.child(`rooms/${id}`).remove();
-        showToast('Đã xóa căn hộ');
-      }
-    }
-
-    function openModal(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.remove('hidden');
-      el.classList.add('flex');
-      if (id === 'agentsModal') renderAgentsModalList();
-      lucide.createIcons();
-    }
-
-    function closeModal(id) {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.classList.add('hidden');
-      el.classList.remove('flex');
-    }
-
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      document.getElementById('toast-msg').textContent = msg;
-      toast.classList.remove('opacity-0', 'translate-y-[-20px]');
-      toast.classList.add('opacity-100', 'translate-y-0');
-      clearTimeout(window._toastTimer);
-      window._toastTimer = setTimeout(() => {
-        toast.classList.add('opacity-0', 'translate-y-[-20px]');
-        toast.classList.remove('opacity-100', 'translate-y-0');
-      }, 2400);
-    }
-
-    function escapeHtml(str) {
-      return String(str ?? '').replace(/[&<>"']/g, s => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-      }[s]));
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      initRealtimeFirebase();
-
-      setInterval(() => {
-        const now = new Date();
-        const clock = document.getElementById('live-clock');
-        if (clock) {
-          clock.textContent = now.toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' }) +
-            ' • ' + now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
-        }
-      }, 1000);
-    });
-  </script>
-</body>
-</html>
+    // --- CẤU HÌNH APP (SETTINGS) ---
+    function openSettingsModal() {
+      document.getElementById('setting-page-title').value = appData.meta.pageTitle;
+      
+      const renderTags = (arr, fnDel) => arr.map((x, i) => `
+        <div class="inline-flex gap-1 bg-zinc-100 border border-zinc-200 px-3 py-1 rounded-xl text

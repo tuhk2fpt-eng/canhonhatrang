@@ -57,7 +57,7 @@
         <div class="flex items-center gap-2.5">
           <div class="w-10 h-10 rounded-2xl bg-zinc-900 text-white flex items-center justify-center text-xl shadow-md">🏠</div>
           <div>
-            <h1 class="font-extrabold text-base text-zinc-900 leading-tight">Camy Airbnb Portfolio</h1>
+            <h1 id="site-title-heading" class="font-extrabold text-base text-zinc-900 leading-tight">Camy Airbnb Portfolio</h1>
             <p id="agent-welcome-sub" class="text-[11px] text-zinc-500 font-medium">Hệ thống lưu trữ & chia sẻ phòng</p>
           </div>
         </div>
@@ -102,15 +102,11 @@
     </div>
   </header>
 
-  <!-- THANH DANH MỤC TRƯỢT NGANG (CATEGORIES BAR) -->
+  <!-- THANH DANH MỤC TRƯỢT NGANG ĐỘNG (DYNAMIC CATEGORIES BAR) -->
   <div class="bg-white border-b border-zinc-200 px-4 md:px-8 py-2.5 shadow-xs overflow-x-auto no-scrollbar">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 min-w-max text-xs font-bold text-zinc-600">
-      <div class="flex items-center gap-6">
-        <button onclick="setCategoryFilter('ALL')" data-cat="ALL" class="cat-chip pb-2 border-b-2 border-zinc-900 text-zinc-900 font-extrabold transition flex items-center gap-1.5">🏠 Tất cả</button>
-        <button onclick="setCategoryFilter('HOT')" data-cat="HOT" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🔥 Căn Hot</button>
-        <button onclick="setCategoryFilter('PET')" data-cat="PET" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🐾 Nuôi Pet</button>
-        <button onclick="setCategoryFilter('BIKE')" data-cat="BIKE" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🚲 Xe điện</button>
-        <button onclick="setCategoryFilter('STUDIO')" data-cat="STUDIO" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🏢 Studio / 1PN</button>
+      <div id="categories-bar-list" class="flex items-center gap-6">
+        <!-- Render động từ appData.meta.categories -->
       </div>
 
       <!-- Live Clock & KPI nhỏ -->
@@ -134,10 +130,10 @@
           <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm Căn Mới
         </button>
         <button onclick="openModal('agentsModal')" id="admin-agents-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
-          <i data-lucide="users" class="w-4 h-4"></i> Nhân sự & Link SĐT
+          <i data-lucide="users" class="w-4 h-4"></i> Nhân sự & Mã PIN
         </button>
         <button onclick="openSettingsModal()" id="admin-settings-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
-          <i data-lucide="sliders" class="w-4 h-4"></i> Cấu hình Khu vực / Giá
+          <i data-lucide="sliders" class="w-4 h-4"></i> Cấu hình Trang & Danh mục
         </button>
         <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition">
           Thoát
@@ -177,7 +173,7 @@
 
   </main>
 
-  <footer class="text-center py-6 text-xs text-zinc-400 border-t border-zinc-200 bg-white">
+  <footer id="site-footer-text" class="text-center py-6 text-xs text-zinc-400 border-t border-zinc-200 bg-white">
     © 2026 Camy Airbnb Portfolio — Hệ thống số hóa quản lý phòng lưu trú
   </footer>
 
@@ -211,7 +207,7 @@
           <p id="detail-address" class="font-extrabold text-zinc-900 text-sm">--</p>
         </div>
         <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1">
-          <p class="text-zinc-400 font-bold uppercase text-[10px]">Giá thuê / đêm</p>
+          <p id="detail-price-label" class="text-zinc-400 font-bold uppercase text-[10px]">Giá thuê</p>
           <p id="detail-price" class="font-extrabold text-rose-600 text-base">--</p>
         </div>
       </div>
@@ -280,14 +276,25 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-2 gap-3">
-          <div>
+        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+          <div class="sm:col-span-4">
             <label class="block font-bold text-zinc-700 mb-1">Khu vực *</label>
-            <select id="room-area" required class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-semibold bg-white"></select>
+            <select id="room-area" required class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-semibold bg-white"></select>
           </div>
-          <div>
-            <label class="block font-bold text-zinc-700 mb-1">Giá tiền / đêm (₫) *</label>
+          <div class="sm:col-span-5">
+            <label class="block font-bold text-zinc-700 mb-1">Giá tiền (₫) *</label>
             <input type="number" step="10000" id="room-price" required placeholder="650000" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-extrabold text-rose-600" />
+          </div>
+          <div class="sm:col-span-3">
+            <label class="block font-bold text-zinc-700 mb-1">Đơn vị tính *</label>
+            <input type="text" id="room-price-unit" list="price-unit-suggestions" required value="đêm" placeholder="đêm, tháng..." class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-bold text-center text-zinc-800" />
+            <datalist id="price-unit-suggestions">
+              <option value="đêm"></option>
+              <option value="ngày"></option>
+              <option value="tháng"></option>
+              <option value="tuần"></option>
+              <option value="năm"></option>
+            </datalist>
           </div>
         </div>
 
@@ -331,6 +338,12 @@
             <input type="checkbox" id="room-bike" class="w-4 h-4 rounded text-zinc-900" />
             <span class="font-bold text-zinc-800">🚲 Xe điện</span>
           </label>
+        </div>
+
+        <!-- Khu vực tích chọn các Danh mục tùy chỉnh (nếu Admin có tạo thêm) -->
+        <div id="room-custom-categories-box" class="hidden space-y-1.5 pt-1">
+          <label class="block font-bold text-zinc-700">📌 Gắn vào danh mục hiển thị thêm:</label>
+          <div id="room-custom-categories-list" class="grid grid-cols-2 gap-2"></div>
         </div>
 
         <div>
@@ -377,47 +390,91 @@
     </div>
   </div>
 
-  <!-- ================= MODAL QUẢN LÝ NHÂN SỰ & LIÊN KẾT LINK (CHỈ ADMIN) ================= -->
+  <!-- ================= MODAL QUẢN LÝ NHÂN SỰ, MÃ PIN & LIÊN KẾT LINK (CHỈ ADMIN) ================= -->
   <div id="agentsModal" class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-xl w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="font-extrabold text-lg text-zinc-900">Quản Lý Nhân Sự & Link Riêng (Affiliate)</h3>
+        <h3 class="font-extrabold text-lg text-zinc-900">Quản Lý Nhân Sự, Mã PIN & Link Riêng</h3>
         <button onclick="closeModal('agentsModal')" class="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <div class="space-y-3 text-xs">
+      <div class="space-y-4 text-xs">
         <p class="text-zinc-600 leading-relaxed">
-          Mỗi bạn nhân sự/quản lý có link riêng (chứa đuôi <code class="bg-zinc-100 px-1 py-0.5 rounded font-mono">?ref=...</code>). Khi khách bấm vào xem, toàn bộ nút gọi điện trên web sẽ kết nối đến số của bạn đó.
+          Bạn có thể tự đặt hoặc sửa <strong>Mã PIN dễ nhớ</strong> cho từng thành viên ngay bên dưới. Mỗi nhân sự có một link riêng (<code class="bg-zinc-100 px-1 py-0.5 rounded font-mono">?ref=...</code>) để hiển thị số điện thoại của mình khi gửi khách.
         </p>
 
-        <div id="agents-list-container" class="space-y-2"></div>
+        <div id="agents-list-container" class="space-y-3"></div>
 
-        <form onsubmit="addNewAgent(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-2 pt-3 border-t border-zinc-100">
-          <div class="sm:col-span-4">
-            <input type="text" id="new-agent-name" required placeholder="Tên nhân sự" class="w-full px-3 py-2 rounded-xl border border-zinc-200 font-bold" />
+        <form onsubmit="addNewAgent(event)" class="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+          <p class="font-extrabold text-zinc-900">➕ Thêm thành viên mới</p>
+          <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+            <div class="sm:col-span-4">
+              <label class="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Tên thành viên *</label>
+              <input type="text" id="new-agent-name" required placeholder="VD: Sale Lan" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-bold" />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Số điện thoại *</label>
+              <input type="text" id="new-agent-phone" required placeholder="0905xxxxxx" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-bold" />
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Mã PIN đăng nhập *</label>
+              <input type="text" id="new-agent-pin" required placeholder="VD: 1111, 6868" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-extrabold text-rose-600" />
+            </div>
           </div>
-          <div class="sm:col-span-4">
-            <input type="text" id="new-agent-phone" required placeholder="SĐT hiển thị" class="w-full px-3 py-2 rounded-xl border border-zinc-200 font-bold" />
-          </div>
-          <div class="sm:col-span-4">
-            <button type="submit" class="w-full py-2 rounded-xl bg-zinc-900 text-white font-extrabold">+ Thêm Nhân Sự</button>
-          </div>
+          <button type="submit" class="w-full py-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold transition">+ Tạo Nhân Sự Mới</button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- ================= MODAL CẤU HÌNH KHU VỰC & MỐC GIÁ ================= -->
+  <!-- ================= MODAL CẤU HÌNH TÊN TRANG, DANH MỤC, KHU VỰC & GIÁ ================= -->
   <div id="settingsModal" class="fixed inset-0 bg-zinc-950/70 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 max-h-[92vh] overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-6 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-zinc-100 pb-3">
-        <h3 class="font-extrabold text-lg text-zinc-900">Cấu Hình Khu Vực & Bộ Lọc Giá</h3>
+        <h3 class="font-extrabold text-lg text-zinc-900">Cấu Hình Trang Web & Danh Mục</h3>
         <button onclick="closeModal('settingsModal')" class="p-1.5 rounded-lg text-zinc-400 hover:bg-zinc-100"><i data-lucide="x" class="w-5 h-5"></i></button>
       </div>
 
-      <!-- Quản lý Khu Vực -->
+      <!-- 1. Chỉnh sửa Tên Trang & Mã PIN Admin -->
+      <form onsubmit="saveSiteBranding(event)" class="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3 text-xs">
+        <p class="font-extrabold text-zinc-900 text-sm flex items-center gap-1.5">🏷️ 1. Tên Trang Web & Mã PIN Admin Chính</p>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-bold text-zinc-600 mb-1">Tên trang (Tiêu đề lớn) *</label>
+            <input type="text" id="setting-site-title" required placeholder="Camy Airbnb Portfolio" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-extrabold" />
+          </div>
+          <div>
+            <label class="block font-bold text-zinc-600 mb-1">Dòng mô tả phụ dưới tên</label>
+            <input type="text" id="setting-site-subtitle" placeholder="Hệ thống lưu trữ & chia sẻ phòng" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-semibold" />
+          </div>
+          <div>
+            <label class="block font-bold text-zinc-600 mb-1">Mã PIN Admin tối cao *</label>
+            <input type="text" id="setting-admin-pin" required placeholder="8888" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-extrabold text-rose-600" />
+          </div>
+        </div>
+        <div class="flex justify-end">
+          <button type="submit" class="px-4 py-2 rounded-xl bg-zinc-900 text-white font-extrabold hover:bg-zinc-800 transition">Lưu Tên Trang & PIN</button>
+        </div>
+      </form>
+
+      <!-- 2. Quản lý Thanh Danh Mục Đầu Trang (Hot, Pet, Xe điện...) -->
+      <div class="p-4 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3 text-xs">
+        <div>
+          <p class="font-extrabold text-zinc-900 text-sm">📑 2. Danh Mục Hiển Thị Đầu Trang (Categories)</p>
+          <p class="text-zinc-500 mt-0.5">Đổi tên hiển thị (kèm icon), bật/tắt hoặc thêm danh mục mới trên thanh trượt ngang đầu trang.</p>
+        </div>
+
+        <div id="settings-categories-list" class="space-y-2"></div>
+
+        <form onsubmit="addCustomCategory(event)" class="flex flex-wrap sm:flex-nowrap gap-2 pt-2 border-t border-zinc-200">
+          <input type="text" id="new-category-label" required placeholder="Tên danh mục mới (VD: 🌊 View Biển, 🏊 Hồ Bơi...)" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200 bg-white font-bold" />
+          <button type="submit" class="px-4 py-2 rounded-xl bg-zinc-900 text-white font-extrabold shrink-0">+ Thêm Danh Mục</button>
+        </form>
+      </div>
+
+      <!-- 3. Quản lý Khu Vực -->
       <div class="space-y-2 text-xs">
-        <label class="block font-extrabold text-zinc-900">Danh Sách Khu Vực</label>
+        <label class="block font-extrabold text-zinc-900 text-sm">📍 3. Danh Sách Khu Vực</label>
         <div id="settings-area-tags" class="flex flex-wrap gap-2 py-1"></div>
         <form onsubmit="addAreaCatalog(event)" class="flex gap-2 pt-1">
           <input type="text" id="new-area-input" placeholder="Tên khu vực mới (VD: Bãi Dài)" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200 font-semibold" />
@@ -425,9 +482,9 @@
         </form>
       </div>
 
-      <!-- Quản lý Mốc Giá -->
+      <!-- 4. Quản lý Mốc Giá -->
       <div class="space-y-2 text-xs pt-3 border-t border-zinc-100">
-        <label class="block font-extrabold text-zinc-900">Mốc Giá Lọc (₫)</label>
+        <label class="block font-extrabold text-zinc-900 text-sm">💰 4. Mốc Giá Lọc (₫)</label>
         <div id="settings-price-tags" class="flex flex-wrap gap-2 py-1"></div>
         <form onsubmit="addPriceCatalog(event)" class="flex gap-2 pt-1">
           <input type="number" step="50000" id="new-price-input" placeholder="Mốc tiền (VD: 800000)" class="flex-1 px-3 py-2 rounded-xl border border-zinc-200 font-semibold" />
@@ -453,14 +510,14 @@
       <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
         <div>
           <label class="block font-bold text-zinc-700 mb-1">Mã PIN Quản trị *</label>
-          <input type="password" id="login-pin-input" inputmode="numeric" required placeholder="Nhập PIN (VD: 8888)" class="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 text-center text-lg font-extrabold tracking-widest focus:outline-none focus:border-zinc-900" />
+          <input type="password" id="login-pin-input" required placeholder="Nhập mã PIN của bạn" class="w-full px-4 py-3 rounded-xl border-2 border-zinc-200 text-center text-lg font-extrabold tracking-widest focus:outline-none focus:border-zinc-900" />
         </div>
 
         <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2">
           <p class="font-extrabold text-zinc-900">💡 Hướng dẫn phân quyền:</p>
           <ul class="list-disc list-inside text-zinc-600 space-y-1">
-            <li><strong>Mã PIN Admin (Mặc định: 8888):</strong> Toàn quyền thêm/sửa/xóa phòng, đổi cấu hình, tạo mã nhân sự.</li>
-            <li><strong>Mã PIN Quản lý:</strong> Quản lý có quyền bấm đổi nhanh trạng thái trống/bận trên thẻ phòng và thêm/sửa căn hộ.</li>
+            <li><strong>Mã PIN Admin:</strong> Toàn quyền sửa tên trang, sửa danh mục đầu trang, thêm/sửa/xóa phòng và đổi mã PIN cho nhân sự.</li>
+            <li><strong>Mã PIN Quản lý:</strong> Đổi nhanh trạng thái trống/bận trên thẻ phòng và thêm/sửa thông tin căn hộ.</li>
           </ul>
         </div>
 
@@ -490,9 +547,20 @@
     let currentEditMediaList = [];
     let currentCategoryFilter = 'ALL';
 
+    const DEFAULT_CATEGORIES = [
+      { id: 'ALL', label: '🏠 Tất cả', visible: true, isSystem: true },
+      { id: 'HOT', label: '🔥 Căn Hot', visible: true, isSystem: true },
+      { id: 'PET', label: '🐾 Nuôi Pet', visible: true, isSystem: true },
+      { id: 'BIKE', label: '🚲 Xe điện', visible: true, isSystem: true },
+      { id: 'STUDIO', label: '🏢 Studio / 1PN', visible: true, isSystem: true }
+    ];
+
     const DEFAULT_DB_DATA = {
       meta: {
+        siteTitle: 'Camy Airbnb Portfolio',
+        siteSubtitle: 'Hệ thống lưu trữ & chia sẻ phòng',
         adminPin: '8888',
+        categories: DEFAULT_CATEGORIES,
         areas: ['Nha Trang', 'Cam Ranh', 'Bãi Dài', 'Khu vực khác'],
         priceMilestones: [500000, 1000000, 2000000],
         agents: {
@@ -508,12 +576,14 @@
           area: 'Nha Trang',
           address: 'Đường Trần Phú, Nha Trang',
           price: 650000,
+          priceUnit: 'đêm',
           bedrooms: 1,
           capacity: 3,
           status: 'Trống',
           isHot: true,
           petAllowed: true,
           bikeAllowed: true,
+          customCategories: [],
           amenities: 'Wifi tốc độ cao, Bếp nấu ăn đầy đủ, Ban công view biển, Máy giặt riêng, Hồ bơi vô cực',
           phone: '0905123456',
           mediaList: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80'],
@@ -528,6 +598,56 @@
       meta: { ...DEFAULT_DB_DATA.meta },
       rooms: {}
     };
+
+    function getCategoriesList() {
+      const cats = appData.meta?.categories;
+      if (Array.isArray(cats) && cats.length > 0) return cats;
+      return DEFAULT_CATEGORIES;
+    }
+
+    function applySiteBrandingToDOM() {
+      const siteTitle = appData.meta?.siteTitle || 'Camy Airbnb Portfolio';
+      const siteSubtitle = appData.meta?.siteSubtitle || 'Hệ thống lưu trữ & chia sẻ phòng';
+
+      document.title = `${siteTitle} — Danh Mục Căn Hộ & Phòng Cho Thuê`;
+      const headingEl = document.getElementById('site-title-heading');
+      if (headingEl) headingEl.textContent = siteTitle;
+
+      const footerEl = document.getElementById('site-footer-text');
+      if (footerEl) footerEl.textContent = `© 2026 ${siteTitle} — ${siteSubtitle}`;
+
+      const sub = document.getElementById('agent-welcome-sub');
+      if (sub) {
+        if (currentAgent) {
+          sub.textContent = `Hỗ trợ bởi: ${currentAgent.name} (${currentAgent.phone})`;
+        } else {
+          sub.textContent = siteSubtitle;
+        }
+      }
+    }
+
+    function renderCategoriesBar() {
+      const bar = document.getElementById('categories-bar-list');
+      if (!bar) return;
+
+      const cats = getCategoriesList().filter(c => c.visible !== false);
+      if (!cats.some(c => c.id === currentCategoryFilter)) {
+        currentCategoryFilter = 'ALL';
+      }
+
+      bar.innerHTML = cats.map(c => {
+        const active = c.id === currentCategoryFilter;
+        return `
+          <button
+            onclick="setCategoryFilter('${escapeHtml(c.id)}')"
+            data-cat="${escapeHtml(c.id)}"
+            class="cat-chip pb-2 border-b-2 transition flex items-center gap-1.5 ${
+              active ? 'border-zinc-900 text-zinc-900 font-extrabold' : 'border-transparent text-zinc-500 hover:text-zinc-900'
+            }"
+          >${escapeHtml(c.label)}</button>
+        `;
+      }).join('');
+    }
 
     function initRealtimeFirebase() {
       try {
@@ -546,16 +666,19 @@
             rootRef.set(DEFAULT_DB_DATA);
             return;
           }
-          appData.meta = val.meta || DEFAULT_DB_DATA.meta;
+          appData.meta = { ...DEFAULT_DB_DATA.meta, ...(val.meta || {}) };
           if (!appData.meta.agents) appData.meta.agents = DEFAULT_DB_DATA.meta.agents;
+          if (!Array.isArray(appData.meta.categories) || appData.meta.categories.length === 0) {
+            appData.meta.categories = DEFAULT_CATEGORIES;
+          }
           appData.rooms = val.rooms || {};
 
           if (refCode && appData.meta.agents[refCode]) {
             currentAgent = appData.meta.agents[refCode];
-            const sub = document.getElementById('agent-welcome-sub');
-            if (sub) sub.textContent = `Hỗ trợ bởi: ${currentAgent.name} (${currentAgent.phone})`;
           }
 
+          applySiteBrandingToDOM();
+          renderCategoriesBar();
           renderList();
 
           if (directRoomId && appData.rooms[directRoomId] && !openedDirectRoom) {
@@ -570,12 +693,7 @@
 
     function setCategoryFilter(cat) {
       currentCategoryFilter = cat;
-      document.querySelectorAll('.cat-chip').forEach(btn => {
-        const active = btn.getAttribute('data-cat') === cat;
-        btn.className = `cat-chip pb-2 border-b-2 transition flex items-center gap-1.5 ${
-          active ? 'border-zinc-900 text-zinc-900 font-extrabold' : 'border-transparent text-zinc-500 hover:text-zinc-900'
-        }`;
-      });
+      renderCategoriesBar();
       renderList();
     }
 
@@ -594,6 +712,11 @@
       showToast(`Đã chuyển "${r.code || r.name}" sang: ${nextStatus}`);
     }
 
+    function formatCurrency(val, unit = 'đêm') {
+      const cleanUnit = (unit || 'đêm').trim().replace(/^\/\s*/, '');
+      return `${Number(val || 0).toLocaleString('vi-VN')} ₫ / ${cleanUnit}`;
+    }
+
     // Copy mẫu tin nhắn chuẩn bị sẵn cho Sale gửi Zalo / Messenger
     function copyRoomShareText(event, roomId) {
       if (event) event.stopPropagation();
@@ -609,7 +732,7 @@
       const lines = [
         `🏠 ${r.name}${r.code ? ` (Mã: ${r.code})` : ''}`,
         `📍 Khu vực: ${r.area} — ${r.address}`,
-        `💰 Giá thuê: ${formatCurrency(r.price)}`,
+        `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)}`,
         `🛏️ Sức chứa: ${r.bedrooms || 1} phòng ngủ • Tối đa ${r.capacity || 2} khách`,
         `✨ Tiện ích: ${r.amenities || 'Đầy đủ tiện nghi'}`,
         `${r.petAllowed ? '🐾 Cho phép nuôi Pet' : '🚫 Không nuôi Pet'} | ${r.bikeAllowed ? '🚲 Có hỗ trợ xe điện' : '🚲 Không kèm xe điện'}`,
@@ -656,15 +779,16 @@
       showToast('🔒 Đã đăng xuất khỏi phiên làm việc!');
     }
 
+    // ================= QUẢN LÝ NHÂN SỰ & CHỈNH SỬA MÃ PIN =================
     function addNewAgent(e) {
       e.preventDefault();
       if (currentUserRole !== 'admin') { alert('Chỉ có Admin mới được thêm nhân sự!'); return; }
       const name = document.getElementById('new-agent-name').value.trim();
       const phone = document.getElementById('new-agent-phone').value.trim();
-      if (!name || !phone) return;
+      const pin = document.getElementById('new-agent-pin').value.trim();
+      if (!name || !phone || !pin) return;
 
       const id = 'agent-' + Date.now().toString(36);
-      const pin = Math.floor(1000 + Math.random() * 9000).toString();
 
       rootRef.child(`meta/agents/${id}`).set({
         id, name, phone, pin, role: 'manager'
@@ -672,8 +796,37 @@
 
       document.getElementById('new-agent-name').value = '';
       document.getElementById('new-agent-phone').value = '';
+      document.getElementById('new-agent-pin').value = '';
       showToast(`Đã thêm ${name} (Mã PIN: ${pin})`);
       renderAgentsModalList();
+    }
+
+    function saveAgentDetails(id) {
+      if (currentUserRole !== 'admin') { alert('Chỉ có Admin mới được sửa thông tin nhân sự!'); return; }
+      const existing = appData.meta?.agents?.[id];
+      if (!existing) return;
+
+      const name = document.getElementById(`edit-agent-name-${id}`)?.value.trim();
+      const phone = document.getElementById(`edit-agent-phone-${id}`)?.value.trim();
+      const pin = document.getElementById(`edit-agent-pin-${id}`)?.value.trim();
+
+      if (!name || !phone || !pin) {
+        alert('Vui lòng không để trống Tên, SĐT hoặc Mã PIN!');
+        return;
+      }
+
+      const updated = {
+        ...existing,
+        name,
+        phone,
+        pin
+      };
+
+      rootRef.child(`meta/agents/${id}`).set(updated);
+      if (existing.role === 'admin') {
+        rootRef.child('meta/adminPin').set(pin);
+      }
+      showToast(`✅ Đã cập nhật thông tin & Mã PIN cho ${name}!`);
     }
 
     function deleteAgent(id) {
@@ -694,22 +847,55 @@
       container.innerHTML = Object.values(agents).map(ag => {
         const shareLink = `${baseUrl}?ref=${ag.id}`;
         return `
-          <div class="p-3 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1.5">
+          <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-2.5">
             <div class="flex items-center justify-between">
-              <span class="font-extrabold text-zinc-900">${escapeHtml(ag.name)} (${ag.role === 'admin' ? 'Admin' : 'Quản lý'})</span>
-              ${ag.role !== 'admin' ? `<button onclick="deleteAgent('${ag.id}')" class="text-rose-600 font-bold hover:underline">Xóa</button>` : ''}
+              <span class="font-extrabold text-zinc-900 text-xs flex items-center gap-1.5">
+                👤 ${escapeHtml(ag.name)}
+                <span class="px-2 py-0.5 rounded-full text-[10px] ${ag.role === 'admin' ? 'bg-amber-100 text-amber-900' : 'bg-zinc-200 text-zinc-700'}">
+                  ${ag.role === 'admin' ? 'Admin' : 'Quản lý'}
+                </span>
+              </span>
+              ${ag.role !== 'admin' ? `<button type="button" onclick="deleteAgent('${ag.id}')" class="text-rose-600 font-bold hover:underline">Xóa thành viên</button>` : ''}
             </div>
-            <p class="text-zinc-600">SĐT hiển thị: <strong>${escapeHtml(ag.phone)}</strong> • PIN: <strong>${ag.pin}</strong></p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2">
+              <div class="sm:col-span-4">
+                <label class="block text-[10px] text-zinc-400 font-bold uppercase mb-0.5">Tên hiển thị</label>
+                <input type="text" id="edit-agent-name-${ag.id}" value="${escapeHtml(ag.name)}" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-zinc-200 font-bold text-zinc-900" />
+              </div>
+              <div class="sm:col-span-4">
+                <label class="block text-[10px] text-zinc-400 font-bold uppercase mb-0.5">Số điện thoại</label>
+                <input type="text" id="edit-agent-phone-${ag.id}" value="${escapeHtml(ag.phone)}" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-zinc-200 font-bold text-zinc-900" />
+              </div>
+              <div class="sm:col-span-4">
+                <label class="block text-[10px] text-zinc-400 font-bold uppercase mb-0.5">Mã PIN đăng nhập</label>
+                <div class="flex gap-1.5">
+                  <input type="text" id="edit-agent-pin-${ag.id}" value="${escapeHtml(ag.pin)}" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-zinc-200 font-extrabold text-rose-600 text-center" />
+                  <button type="button" onclick="saveAgentDetails('${ag.id}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold shrink-0">Lưu</button>
+                </div>
+              </div>
+            </div>
+
             <div class="flex gap-2 pt-1">
               <input type="text" readonly value="${shareLink}" class="flex-1 px-2.5 py-1.5 rounded-lg bg-white border border-zinc-200 text-[11px] text-zinc-500 font-mono select-all" />
-              <button onclick="navigator.clipboard.writeText('${shareLink}'); showToast('Đã copy link của ${escapeHtml(ag.name)}!');" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-bold shrink-0">Copy Link</button>
+              <button type="button" onclick="navigator.clipboard.writeText('${shareLink}'); showToast('Đã copy link của ${escapeHtml(ag.name)}!');" class="px-3 py-1.5 rounded-lg bg-zinc-900 text-white font-bold shrink-0">Copy Link</button>
             </div>
           </div>
         `;
       }).join('');
     }
 
+    // ================= CẤU HÌNH TRANG, DANH MỤC, KHU VỰC & GIÁ =================
     function openSettingsModal() {
+      // 1. Điền thông tin Tên trang & PIN Admin
+      document.getElementById('setting-site-title').value = appData.meta?.siteTitle || 'Camy Airbnb Portfolio';
+      document.getElementById('setting-site-subtitle').value = appData.meta?.siteSubtitle || 'Hệ thống lưu trữ & chia sẻ phòng';
+      document.getElementById('setting-admin-pin').value = appData.meta?.adminPin || '8888';
+
+      // 2. Điền danh sách Danh mục đầu trang (Categories)
+      renderSettingsCategoriesList();
+
+      // 3. Điền Khu vực & Giá
       const areas = appData.meta?.areas || [];
       const prices = appData.meta?.priceMilestones || [];
 
@@ -728,6 +914,114 @@
       `).join('');
 
       openModal('settingsModal');
+    }
+
+    function saveSiteBranding(e) {
+      e.preventDefault();
+      if (currentUserRole !== 'admin') return;
+      const siteTitle = document.getElementById('setting-site-title').value.trim();
+      const siteSubtitle = document.getElementById('setting-site-subtitle').value.trim();
+      const adminPin = document.getElementById('setting-admin-pin').value.trim();
+
+      if (!siteTitle || !adminPin) return;
+
+      rootRef.child('meta/siteTitle').set(siteTitle);
+      rootRef.child('meta/siteSubtitle').set(siteSubtitle);
+      rootRef.child('meta/adminPin').set(adminPin);
+
+      showToast('✅ Đã lưu Tên trang & Mã PIN Admin!');
+    }
+
+    function renderSettingsCategoriesList() {
+      const container = document.getElementById('settings-categories-list');
+      if (!container) return;
+      const cats = getCategoriesList();
+
+      container.innerHTML = cats.map((c, idx) => `
+        <div class="flex items-center gap-2 bg-white p-2 rounded-xl border border-zinc-200">
+          <input
+            type="checkbox"
+            ${c.visible !== false ? 'checked' : ''}
+            onchange="toggleCategoryVisibility(${idx}, this.checked)"
+            title="Bật/Tắt hiển thị trên thanh đầu trang"
+            class="w-4 h-4 rounded text-zinc-900 cursor-pointer"
+          />
+          <input
+            type="text"
+            id="cat-label-input-${idx}"
+            value="${escapeHtml(c.label)}"
+            class="flex-1 px-2.5 py-1.5 rounded-lg border border-zinc-200 font-bold text-xs"
+          />
+          <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-100 text-zinc-500 hidden sm:inline">
+            ${c.isSystem ? 'Mặc định' : 'Tùy chỉnh'}
+          </span>
+          <button
+            type="button"
+            onclick="saveCategoryLabel(${idx})"
+            class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shrink-0"
+          >Lưu tên</button>
+          ${!c.isSystem ? `
+            <button
+              type="button"
+              onclick="deleteCategoryItem(${idx})"
+              class="px-2.5 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs shrink-0"
+            >Xóa</button>
+          ` : ''}
+        </div>
+      `).join('');
+    }
+
+    function saveCategoryLabel(idx) {
+      const cats = [...getCategoriesList()];
+      const inputEl = document.getElementById(`cat-label-input-${idx}`);
+      if (!inputEl || !cats[idx]) return;
+      const newLabel = inputEl.value.trim();
+      if (!newLabel) return;
+
+      cats[idx] = { ...cats[idx], label: newLabel };
+      rootRef.child('meta/categories').set(cats);
+      showToast(`Đã đổi tên danh mục thành "${newLabel}"`);
+    }
+
+    function toggleCategoryVisibility(idx, isVisible) {
+      const cats = [...getCategoriesList()];
+      if (!cats[idx]) return;
+      if (cats[idx].id === 'ALL' && !isVisible) {
+        alert('Danh mục "Tất cả" luôn cần được hiển thị!');
+        renderSettingsCategoriesList();
+        return;
+      }
+      cats[idx] = { ...cats[idx], visible: isVisible };
+      rootRef.child('meta/categories').set(cats);
+      showToast(isVisible ? 'Đã hiện danh mục trên đầu trang' : 'Đã ẩn danh mục khỏi đầu trang');
+    }
+
+    function addCustomCategory(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById('new-category-label');
+      const label = inputEl.value.trim();
+      if (!label) return;
+
+      const cats = [...getCategoriesList()];
+      const id = 'CAT_' + Date.now().toString(36).toUpperCase();
+      cats.push({ id, label, visible: true, isSystem: false });
+
+      rootRef.child('meta/categories').set(cats);
+      inputEl.value = '';
+      showToast(`Đã thêm danh mục "${label}"!`);
+      renderSettingsCategoriesList();
+    }
+
+    function deleteCategoryItem(idx) {
+      const cats = [...getCategoriesList()];
+      const target = cats[idx];
+      if (!target || target.isSystem) return;
+      if (confirm(`Xóa danh mục "${target.label}"?`)) {
+        cats.splice(idx, 1);
+        rootRef.child('meta/categories').set(cats);
+        showToast('Đã xóa danh mục');
+        renderSettingsCategoriesList();
+      }
     }
 
     function addAreaCatalog(e) {
@@ -826,10 +1120,6 @@
       `).join('');
     }
 
-    function formatCurrency(val) {
-      return Number(val || 0).toLocaleString('vi-VN') + ' ₫ / đêm';
-    }
-
     function renderList() {
       const toolbar = document.getElementById('admin-toolbar');
       const agentsBtn = document.getElementById('admin-agents-btn');
@@ -899,7 +1189,7 @@
         return matchSearch && matchArea && matchPrice;
       });
 
-      // Lọc theo Category Tabs
+      // Lọc theo Category Tabs (Hỗ trợ cả danh mục mặc định lẫn danh mục tùy chỉnh)
       if (currentCategoryFilter === 'HOT') {
         filtered = filtered.filter(r => r.isHot);
       } else if (currentCategoryFilter === 'PET') {
@@ -908,6 +1198,8 @@
         filtered = filtered.filter(r => r.bikeAllowed);
       } else if (currentCategoryFilter === 'STUDIO') {
         filtered = filtered.filter(r => Number(r.bedrooms) <= 1);
+      } else if (currentCategoryFilter !== 'ALL') {
+        filtered = filtered.filter(r => Array.isArray(r.customCategories) && r.customCategories.includes(currentCategoryFilter));
       }
 
       // Ghim Căn Hot lên đầu
@@ -921,6 +1213,9 @@
         return;
       }
 
+      const allCategoriesMap = {};
+      getCategoriesList().forEach(c => { allCategoriesMap[c.id] = c.label; });
+
       grid.innerHTML = filtered.map(r => {
         const statusBadge = r.status === 'Trống' ? 'bg-emerald-100 text-emerald-800' :
                             r.status === 'Đang thuê' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800';
@@ -931,18 +1226,25 @@
           ? `<button type="button" onclick="quickToggleStatus(event, '${r.id}')" title="Bấm để đổi nhanh trạng thái" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge} hover:ring-2 hover:ring-zinc-900 transition flex items-center gap-1 cursor-pointer">🔄 ${escapeHtml(r.status || 'Trống')}</button>`
           : `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge}">${escapeHtml(r.status || 'Trống')}</span>`;
 
+        const customBadgesHtml = Array.isArray(r.customCategories)
+          ? r.customCategories
+              .filter(cid => allCategoriesMap[cid])
+              .map(cid => `<span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-purple-50 text-purple-800">${escapeHtml(allCategoriesMap[cid])}</span>`)
+              .join('')
+          : '';
+
         return `
           <div class="bg-white rounded-3xl border border-zinc-200 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition group">
             <div>
               <div class="relative h-56 overflow-hidden bg-zinc-100 cursor-pointer" onclick="openDetailModal('${r.id}')">
                 <img src="${coverImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${escapeHtml(r.name)}" />
                 <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
-                  ${r.isHot ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs bg-amber-500 text-white">🔥 Căn Hot</span>' : ''}
+                  ${r.isHot ? `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs bg-amber-500 text-white">${escapeHtml(allCategoriesMap['HOT'] || '🔥 Căn Hot')}</span>` : ''}
                   ${statusBadgeHtml}
                   <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-zinc-900/80 text-white backdrop-blur-xs">${escapeHtml(r.area || 'Khu vực')}</span>
                 </div>
                 <div class="absolute bottom-3 right-3 bg-zinc-900/80 backdrop-blur-xs text-white px-3 py-1.5 rounded-2xl text-xs font-extrabold shadow">
-                  ${formatCurrency(r.price)}
+                  ${formatCurrency(r.price, r.priceUnit)}
                 </div>
               </div>
 
@@ -958,8 +1260,9 @@
                 <div class="flex flex-wrap gap-1.5">
                   <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-zinc-100 text-zinc-700">🛏️ ${r.bedrooms || 1} PN</span>
                   <span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-zinc-100 text-zinc-700">👥 ${r.capacity || 2} khách</span>
-                  ${r.petAllowed ? '<span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-amber-50 text-amber-800">🐾 Pet</span>' : ''}
-                  ${r.bikeAllowed ? '<span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-blue-50 text-blue-800">🚲 Xe điện</span>' : ''}
+                  ${r.petAllowed ? `<span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-amber-50 text-amber-800">${escapeHtml(allCategoriesMap['PET'] || '🐾 Pet')}</span>` : ''}
+                  ${r.bikeAllowed ? `<span class="px-2 py-1 rounded-lg text-[10px] font-extrabold bg-blue-50 text-blue-800">${escapeHtml(allCategoriesMap['BIKE'] || '🚲 Xe điện')}</span>` : ''}
+                  ${customBadgesHtml}
                 </div>
 
                 <p class="text-xs text-zinc-500 line-clamp-2">${escapeHtml(r.amenities)}</p>
@@ -989,9 +1292,11 @@
       const r = appData.rooms[roomId];
       if (!r) return;
 
+      const unitText = (r.priceUnit || 'đêm').trim();
       document.getElementById('detail-name').textContent = r.name;
       document.getElementById('detail-address').textContent = `${r.area} — ${r.address}`;
-      document.getElementById('detail-price').textContent = formatCurrency(r.price);
+      document.getElementById('detail-price-label').textContent = `Giá thuê / ${unitText}`;
+      document.getElementById('detail-price').textContent = formatCurrency(r.price, unitText);
       document.getElementById('detail-note').textContent = r.note || 'Không có ghi chú thêm.';
       document.getElementById('detail-capacity').textContent = `👥 Tối đa ${r.capacity || 2} khách (${r.bedrooms || 1} PN)`;
 
@@ -1067,6 +1372,25 @@
       const areaSel = document.getElementById('room-area');
       areaSel.innerHTML = areas.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
 
+      // Render các ô tích chọn Danh mục tùy chỉnh (nếu có)
+      const customCats = getCategoriesList().filter(c => !c.isSystem);
+      const customBox = document.getElementById('room-custom-categories-box');
+      const customListEl = document.getElementById('room-custom-categories-list');
+      const selectedCustomCats = (roomId && appData.rooms[roomId]?.customCategories) ? appData.rooms[roomId].customCategories : [];
+
+      if (customCats.length > 0) {
+        customBox.classList.remove('hidden');
+        customListEl.innerHTML = customCats.map(c => `
+          <label class="flex items-center gap-2 p-2.5 rounded-xl border border-zinc-200 cursor-pointer bg-zinc-50">
+            <input type="checkbox" value="${escapeHtml(c.id)}" class="room-custom-cat-checkbox w-4 h-4 rounded text-zinc-900" ${selectedCustomCats.includes(c.id) ? 'checked' : ''} />
+            <span class="font-bold text-zinc-800">${escapeHtml(c.label)}</span>
+          </label>
+        `).join('');
+      } else {
+        customBox.classList.add('hidden');
+        customListEl.innerHTML = '';
+      }
+
       currentEditMediaList = [];
 
       if (roomId && appData.rooms[roomId]) {
@@ -1078,6 +1402,7 @@
         document.getElementById('room-area').value = r.area || areas[0];
         document.getElementById('room-address').value = r.address;
         document.getElementById('room-price').value = r.price;
+        document.getElementById('room-price-unit').value = r.priceUnit || 'đêm';
         document.getElementById('room-bedrooms').value = r.bedrooms || 1;
         document.getElementById('room-capacity').value = r.capacity || 2;
         document.getElementById('room-status').value = r.status || 'Trống';
@@ -1103,6 +1428,7 @@
         document.getElementById('room-area').value = areas[0];
         document.getElementById('room-address').value = '';
         document.getElementById('room-price').value = 500000;
+        document.getElementById('room-price-unit').value = 'đêm';
         document.getElementById('room-bedrooms').value = 1;
         document.getElementById('room-capacity').value = 2;
         document.getElementById('room-status').value = 'Trống';
@@ -1123,6 +1449,8 @@
       e.preventDefault();
       if (!currentUserRole) return;
       const id = document.getElementById('room-id').value || ('room-' + Date.now());
+      const checkedCustomCategories = Array.from(document.querySelectorAll('.room-custom-cat-checkbox:checked')).map(cb => cb.value);
+
       const roomData = {
         id,
         name: document.getElementById('room-name').value.trim(),
@@ -1130,12 +1458,14 @@
         area: document.getElementById('room-area').value,
         address: document.getElementById('room-address').value.trim(),
         price: parseFloat(document.getElementById('room-price').value) || 0,
+        priceUnit: document.getElementById('room-price-unit').value.trim() || 'đêm',
         bedrooms: parseInt(document.getElementById('room-bedrooms').value, 10) || 1,
         capacity: parseInt(document.getElementById('room-capacity').value, 10) || 2,
         status: document.getElementById('room-status').value,
         isHot: document.getElementById('room-hot').checked,
         petAllowed: document.getElementById('room-pet').checked,
         bikeAllowed: document.getElementById('room-bike').checked,
+        customCategories: checkedCustomCategories,
         amenities: document.getElementById('room-amenities').value.trim(),
         phone: document.getElementById('room-phone').value.trim(),
         mediaList: currentEditMediaList,

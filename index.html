@@ -171,11 +171,19 @@
           </button>
           <button
             type="button"
+            onclick="shareLastRoomAgain()"
+            title="Đăng lại căn vừa rồi sang nhóm Facebook khác (Có tự động đổi câu chữ chống spam)"
+            class="px-3 py-2.5 rounded-xl bg-indigo-700 hover:bg-indigo-600 text-white text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <i data-lucide="repeat" class="w-3.5 h-3.5"></i> Đăng lại căn này (Nhóm khác)
+          </button>
+          <button
+            type="button"
             onclick="resetPostedRoomsQueue()"
             title="Làm mới lại danh sách đã đăng để bắt đầu vòng đăng mới"
             class="px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
           >
-            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset vòng lặp
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset
           </button>
         </div>
       </div>
@@ -616,6 +624,7 @@
     let currentAgent = null; // Thông tin nhân sự nếu khách vào từ link ?ref=...
     let currentEditMediaList = [];
     let currentCategoryFilter = 'ALL';
+    let lastSharedRoomId = null; // Lưu lại căn hộ vừa đăng để hỗ trợ nút "Đăng lại căn này"
 
     const DEFAULT_CATEGORIES = [
       { id: 'ALL', label: '🏠 Tất cả', visible: true, isSystem: true },
@@ -672,7 +681,7 @@
       rooms: {}
     };
 
-    // ================= BỘ QUẢN LÝ HÀNG ĐỢI ĐĂNG FACEBOOK THEO THỨ TỰ =================
+    // ================= BỘ QUẢN LÝ HÀNG ĐỢI ĐĂNG FACEBOOK (TỐI ƯU CẢ iOS & ANDROID) =================
     function getPostedRoomIds() {
       try {
         const raw = localStorage.getItem(FB_POSTED_STORAGE_KEY);
@@ -699,6 +708,7 @@
         list.push(roomId);
         savePostedRoomIds(list);
       }
+      lastSharedRoomId = roomId;
     }
 
     function toggleRoomPostedStatus(event, roomId) {
@@ -723,12 +733,12 @@
     function resetPostedRoomsQueue() {
       if (confirm('Bạn muốn làm mới (Reset) danh sách đã đăng để bắt đầu đăng lại từ căn đầu tiên?')) {
         savePostedRoomIds([]);
+        lastSharedRoomId = null;
         renderList();
         showToast('🔄 Đã làm mới hàng đợi! Sẵn sàng đăng lại từ căn số 1.');
       }
     }
 
-    // Lấy danh sách các căn hộ Đang Trống được sắp xếp cố định theo thứ tự (Căn Hot -> Mã phòng -> ID)
     function getOrderedAvailableRoomsForQueue() {
       const allRooms = Object.values(appData.rooms || {});
       const availableRooms = allRooms.filter(r => (r.status || 'Trống') === 'Trống');
@@ -764,16 +774,36 @@
       if (unpostedRooms.length > 0) {
         const nextRoom = unpostedRooms[0];
         const nextLabel = nextRoom.code ? `[${nextRoom.code}] ${nextRoom.name}` : nextRoom.name;
-        statusEl.innerHTML = `Tiến độ: <strong class="text-emerald-400">Đã đăng ${postedCount}/${orderedEmptyRooms.length} căn trống</strong> • Căn tiếp theo: <strong class="text-amber-300">${escapeHtml(nextLabel)}</strong>`;
-        btnEl.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> 🚀 Lấy & Đăng Căn Tiếp Theo (${escapeHtml(nextRoom.code || 'Tiếp')})`;
+        statusEl.innerHTML = `Tiến độ: <strong class="text-emerald-400">Đã đăng ${postedCount}/${orderedEmptyRooms.length} căn trống</strong> • Tiếp theo: <strong class="text-amber-300">${escapeHtml(nextLabel)}</strong>`;
+        btnEl.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> 🚀 Lấy & Đăng Căn Tiếp (${escapeHtml(nextRoom.code || 'Tiếp')})`;
       } else {
         statusEl.innerHTML = `🎉 <strong class="text-emerald-400">Đã đăng hoàn tất ${orderedEmptyRooms.length}/${orderedEmptyRooms.length} căn trống!</strong> Bấm nút để xoay vòng lại từ đầu.`;
-        btnEl.innerHTML = `<i data-lucide="rotate-cw" class="w-4 h-4"></i> Đã đăng hết • Bấm để quay vòng mới`;
+        btnEl.innerHTML = `<i data-lucide="rotate-cw" class="w-4 h-4"></i> Đã đăng hết • Bấm quay vòng mới`;
       }
       lucide.createIcons();
     }
 
-    // Tạo nội dung bài viết chuẩn để đăng Facebook / gửi Zalo
+    // Copy đồng bộ tức thì (Giữ User Gesture cho Safari trên iOS)
+    function copyTextSynchronously(text) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.setAttribute('readonly', '');
+        ta.style.position = 'fixed';
+        ta.style.top = '-9999px';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        ta.setSelectionRange(0, text.length);
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+      } catch (e) {}
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      }
+    }
+
+    // Tạo nội dung bài viết kèm câu mở đầu ngẫu nhiên chống Spam khi đăng nhiều nhóm
     function buildRoomPostText(r) {
       const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
       const cleanPhone = cleanPhoneForZalo(phoneToUse);
@@ -787,8 +817,16 @@
         ? `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)} (Thuê theo ${r.secondaryPriceUnit || 'tháng'}: ${formatCurrency(r.secondaryPrice, r.secondaryPriceUnit || 'tháng')})`
         : `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)}`;
 
+      const randomHooks = [
+        `🏠 CĂN HỘ TRỐNG SẴN — ${r.name}${r.code ? ` (Mã: ${r.code})` : ''}`,
+        `🌊 LÊN SÓNG CĂN HỘ ĐẸP — ${r.name}${r.code ? ` [${r.code}]` : ''}`,
+        `✨ CHO THUÊ CĂN HỘ FULL TIỆN NGHI — ${r.name}${r.code ? ` (${r.code})` : ''}`,
+        `🔥 GÓC TÌM KHÁCH THUÊ — ${r.name}${r.code ? ` • Mã ${r.code}` : ''}`
+      ];
+      const chosenHook = randomHooks[Math.floor(Math.random() * randomHooks.length)];
+
       return [
-        `🏠 ${r.name}${r.code ? ` (Mã: ${r.code})` : ''}`,
+        chosenHook,
         `📍 Khu vực: ${r.area} — ${r.address}`,
         priceLine,
         `🛏️ Sức chứa: ${r.bedrooms || 1} phòng ngủ • Tối đa ${r.capacity || 2} khách`,
@@ -801,30 +839,31 @@
       ].filter(Boolean).join('\n');
     }
 
-    // Chuyển đổi ảnh Base64 hoặc URL của căn hộ thành đối tượng File thật để đẩy sang App Facebook trên Android/iOS
+    function base64ToFileSync(dataUrl, fileName) {
+      const arr = dataUrl.split(',');
+      const bstr = atob(arr[1]);
+      let n = bstr.length;
+      const u8arr = new Uint8Array(n);
+      while (n--) {
+        u8arr[n] = bstr.charCodeAt(n);
+      }
+      return new File([u8arr], fileName, { type: 'image/jpeg', lastModified: Date.now() });
+    }
+
     async function convertMediaSrcToFile(src, index, roomCode) {
       const safeCode = (roomCode || 'camy').replace(/[^a-zA-Z0-9_-]/g, '');
-      const fileName = `${safeCode}_anh_${index + 1}.jpg`;
+      const fileName = `${safeCode}_${index + 1}.jpg`;
 
       if (src.startsWith('data:')) {
-        const arr = src.split(',');
-        const mimeMatch = arr[0].match(/:(.*?);/);
-        const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
-        const bstr = atob(arr[1]);
-        let n = bstr.length;
-        const u8arr = new Uint8Array(n);
-        while (n--) {
-          u8arr[n] = bstr.charCodeAt(n);
-        }
-        return new File([u8arr], fileName, { type: mime });
+        return base64ToFileSync(src, fileName);
       } else {
         const response = await fetch(src, { mode: 'cors' });
         const blob = await response.blob();
-        return new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+        return new File([blob], fileName, { type: 'image/jpeg', lastModified: Date.now() });
       }
     }
 
-    // Đẩy trực tiếp 1 căn hộ (Kèm chùm ảnh + Tự copy chữ) sang App Facebook của máy tính bảng Android
+    // Đẩy trực tiếp căn hộ (Chuẩn hóa cho iOS: CHỈ truyền { files } để hiện đầy đủ ảnh)
     async function shareRoomToFacebook(event, roomId) {
       if (event) event.stopPropagation();
       const r = appData.rooms[roomId];
@@ -832,20 +871,14 @@
 
       const postText = buildRoomPostText(r);
 
-      // 1. Luôn copy sẵn nội dung bài đăng vào bộ nhớ tạm (Clipboard) để người dùng chỉ việc Dán (Paste) vào Facebook
-      try {
-        await navigator.clipboard.writeText(postText);
-      } catch (err) {
-        console.warn('Clipboard copy warning:', err);
-      }
+      // 1. Copy chữ đồng bộ tức thì
+      copyTextSynchronously(postText);
 
-      // 2. Đánh dấu căn hộ này là Đã đăng vào hàng đợi
+      // 2. Đánh dấu đã đăng & lưu lại ID căn vừa đăng
       markRoomAsPostedToFb(roomId);
       renderList();
 
-      showToast(`📋 Đã copy bài "${r.code || r.name}" & đang chuẩn bị chùm ảnh đẩy sang Facebook...`);
-
-      // 3. Gom toàn bộ chùm ảnh của căn hộ (Tối đa 10 ảnh/lần chia sẻ)
+      // 3. Chuẩn bị danh sách File ảnh (Tối đa 10 ảnh)
       const rawMedia = (Array.isArray(r.mediaList) && r.mediaList.length > 0)
         ? r.mediaList.slice(0, 10)
         : (r.imageUrl ? [r.imageUrl] : []);
@@ -856,40 +889,51 @@
           const f = await convertMediaSrcToFile(rawMedia[i], i, r.code || r.id);
           if (f) filesToShare.push(f);
         } catch (err) {
-          console.warn('Skip image conversion error:', err);
+          console.warn('Skip image error:', err);
         }
       }
 
-      // 4. Kích hoạt bảng Chia sẻ (Web Share API) gốc của Android / iPad
+      // 4. Mở bảng Share: CHỈ truyền duy nhất { files: filesToShare } để iOS không bị mất ảnh
       if (navigator.share) {
         try {
-          if (filesToShare.length > 0 && navigator.canShare && navigator.canShare({ files: filesToShare })) {
+          if (filesToShare.length > 0 && (!navigator.canShare || navigator.canShare({ files: filesToShare }))) {
             await navigator.share({
-              files: filesToShare,
-              title: r.name,
-              text: postText
+              files: filesToShare
             });
-            showToast(`✅ Đã đẩy ${filesToShare.length} ảnh sang Facebook! Hãy Dán (Paste) bài viết đã copy nhé.`);
+            showToast(`✅ Đã đẩy ${filesToShare.length} ảnh! Chữ đã được Copy sẵn để Dán (Paste).`);
             return;
           } else {
             await navigator.share({
-              title: r.name,
               text: postText
             });
             return;
           }
         } catch (shareErr) {
           if (shareErr.name === 'AbortError') {
-            showToast('📋 Nội dung bài viết vẫn được giữ trong bộ nhớ tạm (Đã copy)!');
+            showToast('📋 Nội dung chữ đã được Copy sẵn trong bộ nhớ tạm!');
             return;
           }
         }
       }
 
-      alert(`📋 ĐÃ COPY NỘI DUNG CĂN "${r.code || r.name}"!\n\nTrình duyệt hiện tại không bật bảng Share trực tiếp, bạn chỉ cần mở Facebook và Dán (Paste) nội dung đã copy.`);
+      alert(`📋 ĐÃ COPY NỘI DUNG CĂN "${r.code || r.name}"!\n\nBạn chỉ cần mở Facebook và Dán (Paste) nội dung đã copy.`);
     }
 
-    // Nút bấm Tự động lấy căn hộ CHƯA ĐĂNG tiếp theo theo đúng thứ tự
+    // Nút đăng lại chính căn hộ vừa rồi để rải sang nhóm Facebook khác
+    async function shareLastRoomAgain() {
+      if (!lastSharedRoomId || !appData.rooms[lastSharedRoomId]) {
+        const orderedEmptyRooms = getOrderedAvailableRoomsForQueue();
+        if (orderedEmptyRooms.length > 0) {
+          lastSharedRoomId = orderedEmptyRooms[0].id;
+        } else {
+          alert('Chưa có căn hộ nào được chọn để đăng lại!');
+          return;
+        }
+      }
+      showToast('🔄 Đang tạo bài mới (đảo câu chữ) cho căn hộ này để đăng nhóm khác...');
+      await shareRoomToFacebook(null, lastSharedRoomId);
+    }
+
     async function shareNextUnpostedRoomToFacebook() {
       const orderedEmptyRooms = getOrderedAvailableRoomsForQueue();
       if (orderedEmptyRooms.length === 0) {
@@ -903,6 +947,7 @@
       if (unpostedRooms.length === 0) {
         if (confirm(`🎉 Bạn đã đăng hết toàn bộ ${orderedEmptyRooms.length} căn hộ đang trống!\n\nBạn có muốn làm mới (Reset) danh sách để quay vòng đăng lại từ căn đầu tiên không?`)) {
           savePostedRoomIds([]);
+          lastSharedRoomId = null;
           renderList();
           const firstRoom = orderedEmptyRooms[0];
           if (firstRoom) {
@@ -925,7 +970,6 @@
       return digits || '0905123456';
     }
 
-    // Tự động đảm bảo có danh mục "🟢 Đang Trống" (AVAILABLE) cho cả các bản dữ liệu Firebase cũ
     function getCategoriesList() {
       const rawCats = appData.meta?.categories;
       if (!Array.isArray(rawCats) || rawCats.length === 0) return DEFAULT_CATEGORIES;
@@ -1055,7 +1099,6 @@
       renderList();
     }
 
-    // Lọc nhanh khi bấm vào 3 thẻ thống kê KPI đầu trang
     function quickFilterByKpiCard(statusType) {
       const statusSel = document.getElementById('filter-status');
       if (!statusSel) return;
@@ -1080,7 +1123,6 @@
       renderList();
     }
 
-    // Đổi nhanh trạng thái Trống -> Đang thuê -> Đang dọn chỉ bằng 1 chạm
     function quickToggleStatus(event, roomId) {
       event.stopPropagation();
       if (!currentUserRole) return;
@@ -1100,7 +1142,6 @@
       return `${Number(val || 0).toLocaleString('vi-VN')} ₫ / ${cleanUnit}`;
     }
 
-    // Copy mẫu tin nhắn chuẩn bị sẵn cho Sale gửi Zalo / Messenger
     function copyRoomShareText(event, roomId) {
       if (event) event.stopPropagation();
       const r = appData.rooms[roomId];
@@ -1431,7 +1472,7 @@
       openSettingsModal();
     }
 
-    // Nén ảnh tự động qua Canvas để chống tràn dung lượng Firebase Realtime Database
+    // Nén ảnh tự động qua Canvas để tối ưu dung lượng
     function compressImage(file, maxWidth = 1200, quality = 0.72) {
       return new Promise((resolve) => {
         const reader = new FileReader();
@@ -1525,7 +1566,6 @@
       const emptyRooms = roomsList.filter(r => (r.status || 'Trống') === 'Trống').length;
       const busyRooms = totalRooms - emptyRooms;
 
-      // Cập nhật KPI an toàn
       const kpiTotal = document.getElementById('kpi-total-rooms');
       const kpiEmpty = document.getElementById('kpi-empty-rooms');
       const kpiBusy = document.getElementById('kpi-busy-rooms');
@@ -1538,7 +1578,6 @@
       const priceFilter = priceSel.value;
       const statusFilter = document.getElementById('filter-status')?.value || 'ALL';
 
-      // Đánh dấu nổi bật thẻ KPI đang được chọn lọc
       const kpiCardEmpty = document.getElementById('kpi-card-empty');
       const kpiCardBusy = document.getElementById('kpi-card-busy');
       if (kpiCardEmpty) {
@@ -1576,7 +1615,6 @@
         return matchSearch && matchArea && matchStatus && matchPrice;
       });
 
-      // Lọc theo Category Tabs (Hỗ trợ cả tab "🟢 Đang Trống" và các danh mục khác)
       if (currentCategoryFilter === 'AVAILABLE') {
         filtered = filtered.filter(r => (r.status || 'Trống') === 'Trống');
       } else if (currentCategoryFilter === 'HOT') {
@@ -1591,7 +1629,6 @@
         filtered = filtered.filter(r => Array.isArray(r.customCategories) && r.customCategories.includes(currentCategoryFilter));
       }
 
-      // Sắp xếp cố định: Căn Hot lên đầu -> Theo Mã phòng (để đồng bộ với thứ tự đăng Facebook)
       filtered.sort((a, b) => {
         const hotDiff = (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0);
         if (hotDiff !== 0) return hotDiff;
@@ -1653,7 +1690,6 @@
 
                 ${fbPostedBadgeHtml ? `<div class="absolute top-3 right-3">${fbPostedBadgeHtml}</div>` : ''}
 
-                <!-- Nhãn hiển thị song song 2 mức giá trên góc ảnh -->
                 <div class="absolute bottom-3 right-3 bg-zinc-900/85 backdrop-blur-xs text-white px-3 py-1.5 rounded-2xl text-right shadow space-y-0.5">
                   <div class="text-xs font-extrabold">${formatCurrency(r.price, r.priceUnit)}</div>
                   ${hasSecondaryPrice ? `<div class="text-[10px] font-bold text-amber-300 border-t border-white/15 pt-0.5">📅 ${formatCurrency(r.secondaryPrice, r.secondaryPriceUnit || 'tháng')}</div>` : ''}
@@ -1732,7 +1768,6 @@
       document.getElementById('detail-note').textContent = r.note || 'Không có ghi chú thêm.';
       document.getElementById('detail-capacity').textContent = `👥 Tối đa ${r.capacity || 2} khách (${r.bedrooms || 1} PN)`;
 
-      // Cập nhật động trạng thái Pet & Xe điện trong Modal chi tiết
       const petEl = document.getElementById('detail-pet');
       const petBox = document.getElementById('detail-pet-box');
       if (r.petAllowed) {
@@ -1772,7 +1807,6 @@
         socialBox.classList.add('hidden');
       }
 
-      // Cập nhật số điện thoại cho cả 2 nút Gọi Điện + Mở Zalo trực tiếp + Đăng FB
       const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
       const cleanZaloPhone = cleanPhoneForZalo(phoneToUse);
       document.getElementById('detail-phone').textContent = phoneToUse;
@@ -1808,7 +1842,6 @@
       const areaSel = document.getElementById('room-area');
       areaSel.innerHTML = areas.map(a => `<option value="${escapeHtml(a)}">${escapeHtml(a)}</option>`).join('');
 
-      // Render các ô tích chọn Danh mục tùy chỉnh (nếu có)
       const customCats = getCategoriesList().filter(c => !c.isSystem);
       const customBox = document.getElementById('room-custom-categories-box');
       const customListEl = document.getElementById('room-custom-categories-list');

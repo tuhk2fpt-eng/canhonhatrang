@@ -70,9 +70,9 @@
         </button>
       </div>
 
-      <!-- THANH TÌM KIẾM (AIRBNB STYLE) -->
+      <!-- THANH TÌM KIẾM & BỘ LỌC (AIRBNB STYLE) -->
       <div class="flex flex-wrap items-center gap-2">
-        <div class="relative flex-1 sm:w-60">
+        <div class="relative flex-1 sm:w-56">
           <i data-lucide="search" class="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
           <input
             type="text"
@@ -82,6 +82,13 @@
             class="w-full pl-10 pr-3 py-2 rounded-full border border-zinc-200 bg-zinc-100/70 text-xs font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-zinc-900"
           />
         </div>
+
+        <select id="filter-status" onchange="handleStatusSelectChange(this.value)" class="px-3 py-2 rounded-xl border border-zinc-200 text-xs font-extrabold bg-white text-zinc-800">
+          <option value="ALL">Mọi trạng thái</option>
+          <option value="Trống">🟢 Chỉ phòng trống</option>
+          <option value="Đang thuê">🔴 Đang thuê</option>
+          <option value="Đang dọn">🟡 Đang dọn</option>
+        </select>
 
         <select id="filter-area" onchange="renderList()" class="px-3 py-2 rounded-xl border border-zinc-200 text-xs font-bold bg-white text-zinc-700">
           <option value="ALL">Tất cả khu vực</option>
@@ -141,31 +148,31 @@
       </div>
     </div>
 
-    <!-- KHU VỰC THỐNG KÊ KPI NHANH -->
+    <!-- KHU VỰC THỐNG KÊ KPI NHANH (BẤM ĐỂ LỌC NHANH THEO TRẠNG THÁI) -->
     <div class="grid grid-cols-3 gap-3 md:gap-6">
-      <div class="p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between">
+      <button type="button" onclick="quickFilterByKpiCard('ALL')" id="kpi-card-all" class="text-left p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between hover:border-zinc-400 transition cursor-pointer">
         <div>
           <p class="text-[10px] md:text-xs font-bold uppercase text-zinc-400">Tổng số phòng</p>
           <p id="kpi-total-rooms" class="text-lg md:text-2xl font-black text-zinc-900 mt-0.5">0</p>
         </div>
         <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-zinc-100 text-zinc-700 flex items-center justify-center font-bold text-sm md:text-base">🏢</div>
-      </div>
+      </button>
 
-      <div class="p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between">
+      <button type="button" onclick="quickFilterByKpiCard('Trống')" id="kpi-card-empty" title="Bấm để chỉ lọc các căn Đang Trống" class="text-left p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between hover:border-emerald-500 transition cursor-pointer">
         <div>
-          <p class="text-[10px] md:text-xs font-bold uppercase text-emerald-600">Phòng Trống Sẵn</p>
+          <p class="text-[10px] md:text-xs font-bold uppercase text-emerald-600 flex items-center gap-1">Phòng Trống Sẵn <span class="hidden sm:inline text-[9px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">Bấm lọc</span></p>
           <p id="kpi-empty-rooms" class="text-lg md:text-2xl font-black text-emerald-600 mt-0.5">0</p>
         </div>
         <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-sm md:text-base">🟢</div>
-      </div>
+      </button>
 
-      <div class="p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between">
+      <button type="button" onclick="quickFilterByKpiCard('Đang thuê')" id="kpi-card-busy" class="text-left p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between hover:border-rose-400 transition cursor-pointer">
         <div>
           <p class="text-[10px] md:text-xs font-bold uppercase text-rose-500">Đang Có Khách / Dọn</p>
           <p id="kpi-busy-rooms" class="text-lg md:text-2xl font-black text-rose-600 mt-0.5">0</p>
         </div>
         <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-sm md:text-base">🔴</div>
-      </div>
+      </button>
     </div>
 
     <!-- LƯỚI HIỂN THỊ CĂN HỘ -->
@@ -206,9 +213,10 @@
           <p class="text-zinc-400 font-bold uppercase text-[10px]">Khu vực & Địa chỉ</p>
           <p id="detail-address" class="font-extrabold text-zinc-900 text-sm">--</p>
         </div>
-        <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1">
-          <p id="detail-price-label" class="text-zinc-400 font-bold uppercase text-[10px]">Giá thuê</p>
+        <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-1.5">
+          <p id="detail-price-label" class="text-zinc-400 font-bold uppercase text-[10px]">Bảng giá thuê</p>
           <p id="detail-price" class="font-extrabold text-rose-600 text-base">--</p>
+          <p id="detail-secondary-price" class="hidden font-extrabold text-emerald-700 text-xs bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-lg inline-block">--</p>
         </div>
       </div>
 
@@ -238,16 +246,20 @@
         </div>
       </div>
 
-      <div class="pt-3 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-3">
+      <!-- KHU VỰC LIÊN HỆ: COPY + MỞ ZALO TRỰC TIẾP + GỌI ĐIỆN -->
+      <div class="pt-3 border-t border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="text-xs text-zinc-600">
-          Liên hệ đặt phòng: <strong id="detail-phone" class="text-zinc-900">--</strong>
+          Hotline / Zalo hỗ trợ: <strong id="detail-phone" class="text-zinc-900 text-sm">--</strong>
         </div>
-        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-          <button id="detail-copy-btn" type="button" class="px-4 py-3 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-extrabold text-xs flex items-center gap-1.5 transition">
-            <i data-lucide="copy" class="w-4 h-4"></i> Copy gửi khách
+        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+          <button id="detail-copy-btn" type="button" class="px-3.5 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-extrabold text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="copy" class="w-4 h-4"></i> Copy mẫu
           </button>
-          <a id="detail-call-btn" href="#" class="px-5 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition">
-            <i data-lucide="phone-call" class="w-4 h-4"></i> Gọi / Zalo
+          <a id="detail-zalo-btn" href="#" target="_blank" rel="noopener noreferrer" class="px-4 py-2.5 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5 transition">
+            <i data-lucide="message-circle" class="w-4 h-4"></i> Mở Zalo
+          </a>
+          <a id="detail-call-btn" href="#" class="px-4 py-2.5 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5 transition">
+            <i data-lucide="phone-call" class="w-4 h-4"></i> Gọi Điện
           </a>
         </div>
       </div>
@@ -276,31 +288,52 @@
           </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
-          <div class="sm:col-span-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
             <label class="block font-bold text-zinc-700 mb-1">Khu vực *</label>
             <select id="room-area" required class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-semibold bg-white"></select>
           </div>
-          <div class="sm:col-span-5">
-            <label class="block font-bold text-zinc-700 mb-1">Giá tiền (₫) *</label>
-            <input type="number" step="10000" id="room-price" required placeholder="650000" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-extrabold text-rose-600" />
-          </div>
-          <div class="sm:col-span-3">
-            <label class="block font-bold text-zinc-700 mb-1">Đơn vị tính *</label>
-            <input type="text" id="room-price-unit" list="price-unit-suggestions" required value="đêm" placeholder="đêm, tháng..." class="w-full px-3 py-2.5 rounded-xl border border-zinc-200 font-bold text-center text-zinc-800" />
-            <datalist id="price-unit-suggestions">
-              <option value="đêm"></option>
-              <option value="ngày"></option>
-              <option value="tháng"></option>
-              <option value="tuần"></option>
-              <option value="năm"></option>
-            </datalist>
+          <div>
+            <label class="block font-bold text-zinc-700 mb-1">Địa chỉ chi tiết *</label>
+            <input type="text" id="room-address" required placeholder="VD: Đường Trần Phú, Nha Trang" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
           </div>
         </div>
 
-        <div>
-          <label class="block font-bold text-zinc-700 mb-1">Địa chỉ chi tiết *</label>
-          <input type="text" id="room-address" required placeholder="VD: Đường Trần Phú, Nha Trang" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-semibold" />
+        <!-- BẢNG CẤU HÌNH 2 MỨC GIÁ SONG SONG (ĐÊM/NGÀY & THÁNG) -->
+        <div class="p-3.5 rounded-2xl bg-zinc-50 border border-zinc-200 space-y-3">
+          <p class="font-extrabold text-zinc-900 text-xs flex items-center gap-1.5">💰 Thiết lập mức giá (Hỗ trợ hiển thị song song 2 mức giá)</p>
+
+          <!-- Mức giá 1 (Bắt buộc) -->
+          <div class="grid grid-cols-12 gap-2 items-end">
+            <div class="col-span-8">
+              <label class="block font-bold text-zinc-700 mb-1">Giá chính (VD: theo Đêm / Ngày) *</label>
+              <input type="number" step="10000" id="room-price" required placeholder="650000" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-extrabold text-rose-600" />
+            </div>
+            <div class="col-span-4">
+              <label class="block font-bold text-zinc-700 mb-1">Đơn vị 1 *</label>
+              <input type="text" id="room-price-unit" list="price-unit-suggestions" required value="đêm" placeholder="đêm, ngày..." class="w-full px-2.5 py-2 rounded-xl border border-zinc-200 bg-white font-bold text-center text-zinc-800" />
+            </div>
+          </div>
+
+          <!-- Mức giá 2 (Tùy chọn - Theo Tháng/Tuần) -->
+          <div class="grid grid-cols-12 gap-2 items-end pt-1 border-t border-zinc-200/70">
+            <div class="col-span-8">
+              <label class="block font-bold text-emerald-700 mb-1">Giá phụ (VD: theo Tháng - để trống nếu không có)</label>
+              <input type="number" step="50000" id="room-secondary-price" placeholder="VD: 8500000 (Bỏ trống nếu chỉ có 1 giá)" class="w-full px-3 py-2 rounded-xl border border-emerald-200 bg-white font-extrabold text-emerald-700" />
+            </div>
+            <div class="col-span-4">
+              <label class="block font-bold text-emerald-700 mb-1">Đơn vị 2</label>
+              <input type="text" id="room-secondary-price-unit" list="price-unit-suggestions" value="tháng" placeholder="tháng, tuần..." class="w-full px-2.5 py-2 rounded-xl border border-emerald-200 bg-white font-bold text-center text-emerald-800" />
+            </div>
+          </div>
+
+          <datalist id="price-unit-suggestions">
+            <option value="đêm"></option>
+            <option value="ngày"></option>
+            <option value="tháng"></option>
+            <option value="tuần"></option>
+            <option value="năm"></option>
+          </datalist>
         </div>
 
         <div class="grid grid-cols-3 gap-3">
@@ -368,7 +401,7 @@
         </div>
 
         <div>
-          <label class="block font-bold text-zinc-700 mb-1">Số điện thoại mặc định (Chủ nhà)</label>
+          <label class="block font-bold text-zinc-700 mb-1">Số điện thoại / Zalo mặc định (Chủ nhà)</label>
           <input type="text" id="room-phone" placeholder="0905123456" class="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 font-bold" />
         </div>
 
@@ -400,7 +433,7 @@
 
       <div class="space-y-4 text-xs">
         <p class="text-zinc-600 leading-relaxed">
-          Bạn có thể tự đặt hoặc sửa <strong>Mã PIN dễ nhớ</strong> cho từng thành viên ngay bên dưới. Mỗi nhân sự có một link riêng (<code class="bg-zinc-100 px-1 py-0.5 rounded font-mono">?ref=...</code>) để hiển thị số điện thoại của mình khi gửi khách.
+          Bạn có thể tự đặt hoặc sửa <strong>Mã PIN dễ nhớ</strong> cho từng thành viên ngay bên dưới. Mỗi nhân sự có một link riêng (<code class="bg-zinc-100 px-1 py-0.5 rounded font-mono">?ref=...</code>) để hiển thị số điện thoại & Zalo của mình khi gửi khách.
         </p>
 
         <div id="agents-list-container" class="space-y-3"></div>
@@ -413,7 +446,7 @@
               <input type="text" id="new-agent-name" required placeholder="VD: Sale Lan" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-bold" />
             </div>
             <div class="sm:col-span-4">
-              <label class="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Số điện thoại *</label>
+              <label class="block text-[10px] font-bold text-zinc-500 uppercase mb-1">Số điện thoại / Zalo *</label>
               <input type="text" id="new-agent-phone" required placeholder="0905xxxxxx" class="w-full px-3 py-2 rounded-xl border border-zinc-200 bg-white font-bold" />
             </div>
             <div class="sm:col-span-4">
@@ -549,6 +582,7 @@
 
     const DEFAULT_CATEGORIES = [
       { id: 'ALL', label: '🏠 Tất cả', visible: true, isSystem: true },
+      { id: 'AVAILABLE', label: '🟢 Đang Trống', visible: true, isSystem: true },
       { id: 'HOT', label: '🔥 Căn Hot', visible: true, isSystem: true },
       { id: 'PET', label: '🐾 Nuôi Pet', visible: true, isSystem: true },
       { id: 'BIKE', label: '🚲 Xe điện', visible: true, isSystem: true },
@@ -562,7 +596,7 @@
         adminPin: '8888',
         categories: DEFAULT_CATEGORIES,
         areas: ['Nha Trang', 'Cam Ranh', 'Bãi Dài', 'Khu vực khác'],
-        priceMilestones: [500000, 1000000, 2000000],
+        priceMilestones: [500000, 1000000, 2000000, 10000000],
         agents: {
           'tu': { id: 'tu', name: 'Chủ Quản Lý', phone: '0905123456', pin: '8888', role: 'admin' },
           'minh': { id: 'minh', name: 'Quản Lý Minh', phone: '0988999888', pin: '1234', role: 'manager' }
@@ -577,6 +611,8 @@
           address: 'Đường Trần Phú, Nha Trang',
           price: 650000,
           priceUnit: 'đêm',
+          secondaryPrice: 8500000,
+          secondaryPriceUnit: 'tháng',
           bedrooms: 1,
           capacity: 3,
           status: 'Trống',
@@ -589,7 +625,7 @@
           mediaList: ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80'],
           socialLink: 'https://tiktok.com',
           note: 'Miễn phí nước suối, trà và cà phê chào mừng.',
-          internalNote: 'Giá net chủ nhà 500k. Mật khẩu hộp khóa: 1234.'
+          internalNote: 'Giá net chủ nhà 500k/đêm hoặc 7tr/tháng. Mật khẩu hộp khóa: 1234.'
         }
       }
     };
@@ -599,10 +635,30 @@
       rooms: {}
     };
 
+    // Chuẩn hóa số điện thoại để tạo link Zalo & Tel chính xác
+    function cleanPhoneForZalo(rawPhone) {
+      let digits = String(rawPhone || '').replace(/\D/g, '');
+      if (digits.startsWith('84') && digits.length >= 10) {
+        digits = '0' + digits.slice(2);
+      }
+      return digits || '0905123456';
+    }
+
+    // Tự động đảm bảo có danh mục "🟢 Đang Trống" (AVAILABLE) cho cả các bản dữ liệu Firebase cũ
     function getCategoriesList() {
-      const cats = appData.meta?.categories;
-      if (Array.isArray(cats) && cats.length > 0) return cats;
-      return DEFAULT_CATEGORIES;
+      const rawCats = appData.meta?.categories;
+      if (!Array.isArray(rawCats) || rawCats.length === 0) return DEFAULT_CATEGORIES;
+      const list = [...rawCats];
+      if (!list.some(c => c.id === 'AVAILABLE')) {
+        const allIdx = list.findIndex(c => c.id === 'ALL');
+        const availItem = { id: 'AVAILABLE', label: '🟢 Đang Trống', visible: true, isSystem: true };
+        if (allIdx >= 0) {
+          list.splice(allIdx + 1, 0, availItem);
+        } else {
+          list.unshift(availItem);
+        }
+      }
+      return list;
     }
 
     function applySiteBrandingToDOM() {
@@ -637,12 +693,17 @@
 
       bar.innerHTML = cats.map(c => {
         const active = c.id === currentCategoryFilter;
+        const isAvailableChip = c.id === 'AVAILABLE';
+        let activeClass = 'border-zinc-900 text-zinc-900 font-extrabold';
+        if (isAvailableChip && active) {
+          activeClass = 'border-emerald-600 text-emerald-700 font-extrabold';
+        }
         return `
           <button
             onclick="setCategoryFilter('${escapeHtml(c.id)}')"
             data-cat="${escapeHtml(c.id)}"
             class="cat-chip pb-2 border-b-2 transition flex items-center gap-1.5 ${
-              active ? 'border-zinc-900 text-zinc-900 font-extrabold' : 'border-transparent text-zinc-500 hover:text-zinc-900'
+              active ? activeClass : 'border-transparent text-zinc-500 hover:text-zinc-900'
             }"
           >${escapeHtml(c.label)}</button>
         `;
@@ -668,9 +729,7 @@
           }
           appData.meta = { ...DEFAULT_DB_DATA.meta, ...(val.meta || {}) };
           if (!appData.meta.agents) appData.meta.agents = DEFAULT_DB_DATA.meta.agents;
-          if (!Array.isArray(appData.meta.categories) || appData.meta.categories.length === 0) {
-            appData.meta.categories = DEFAULT_CATEGORIES;
-          }
+          appData.meta.categories = getCategoriesList();
           appData.rooms = val.rooms || {};
 
           if (refCode && appData.meta.agents[refCode]) {
@@ -693,6 +752,49 @@
 
     function setCategoryFilter(cat) {
       currentCategoryFilter = cat;
+      const statusSel = document.getElementById('filter-status');
+      if (statusSel) {
+        if (cat === 'AVAILABLE') {
+          statusSel.value = 'Trống';
+        } else if (statusSel.value === 'Trống') {
+          statusSel.value = 'ALL';
+        }
+      }
+      renderCategoriesBar();
+      renderList();
+    }
+
+    function handleStatusSelectChange(val) {
+      if (val === 'Trống') {
+        currentCategoryFilter = 'AVAILABLE';
+      } else if (currentCategoryFilter === 'AVAILABLE') {
+        currentCategoryFilter = 'ALL';
+      }
+      renderCategoriesBar();
+      renderList();
+    }
+
+    // Lọc nhanh khi bấm vào 3 thẻ thống kê KPI đầu trang
+    function quickFilterByKpiCard(statusType) {
+      const statusSel = document.getElementById('filter-status');
+      if (!statusSel) return;
+
+      if (statusType === 'ALL') {
+        statusSel.value = 'ALL';
+        currentCategoryFilter = 'ALL';
+        showToast('Đang hiển thị tất cả các căn hộ');
+      } else if (statusType === 'Trống') {
+        const isAlreadyEmptyFilter = statusSel.value === 'Trống';
+        statusSel.value = isAlreadyEmptyFilter ? 'ALL' : 'Trống';
+        currentCategoryFilter = isAlreadyEmptyFilter ? 'ALL' : 'AVAILABLE';
+        showToast(isAlreadyEmptyFilter ? 'Đã tắt lọc phòng trống' : '🟢 Đang lọc các căn Còn Trống Sẵn!');
+      } else {
+        const isAlreadyBusyFilter = statusSel.value === 'Đang thuê';
+        statusSel.value = isAlreadyBusyFilter ? 'ALL' : 'Đang thuê';
+        if (currentCategoryFilter === 'AVAILABLE') currentCategoryFilter = 'ALL';
+        showToast(isAlreadyBusyFilter ? 'Đã tắt lọc phòng đang thuê' : '🔴 Đang lọc các căn Đang Thuê');
+      }
+
       renderCategoriesBar();
       renderList();
     }
@@ -724,26 +826,32 @@
       if (!r) return;
 
       const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
+      const cleanPhone = cleanPhoneForZalo(phoneToUse);
       const baseUrl = window.location.origin + window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
       const refParam = urlParams.get('ref') || (currentAgent ? currentAgent.id : '');
       const shareUrl = `${baseUrl}?room=${encodeURIComponent(r.id)}${refParam ? `&ref=${encodeURIComponent(refParam)}` : ''}`;
 
+      const hasSecondaryPrice = Number(r.secondaryPrice) > 0;
+      const priceLine = hasSecondaryPrice
+        ? `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)} (Thuê theo ${r.secondaryPriceUnit || 'tháng'}: ${formatCurrency(r.secondaryPrice, r.secondaryPriceUnit || 'tháng')})`
+        : `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)}`;
+
       const lines = [
         `🏠 ${r.name}${r.code ? ` (Mã: ${r.code})` : ''}`,
         `📍 Khu vực: ${r.area} — ${r.address}`,
-        `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)}`,
+        priceLine,
         `🛏️ Sức chứa: ${r.bedrooms || 1} phòng ngủ • Tối đa ${r.capacity || 2} khách`,
         `✨ Tiện ích: ${r.amenities || 'Đầy đủ tiện nghi'}`,
         `${r.petAllowed ? '🐾 Cho phép nuôi Pet' : '🚫 Không nuôi Pet'} | ${r.bikeAllowed ? '🚲 Có hỗ trợ xe điện' : '🚲 Không kèm xe điện'}`,
         r.note ? `📝 Lưu ý: ${r.note}` : '',
         r.socialLink ? `🎬 Video thực tế: ${r.socialLink}` : '',
         `🔗 Xem hình ảnh chi tiết: ${shareUrl}`,
-        `📞 Liên hệ đặt phòng (Call/Zalo): ${phoneToUse}`
+        `📞 Gọi điện / Chat Zalo: ${phoneToUse} (https://zalo.me/${cleanPhone})`
       ].filter(Boolean).join('\n');
 
       navigator.clipboard.writeText(lines).then(() => {
-        showToast('📋 Đã copy thông tin căn hộ để gửi khách!');
+        showToast('📋 Đã copy thông tin căn hộ (kèm link Zalo) để gửi khách!');
       }).catch(() => {
         alert('Trình duyệt không hỗ trợ copy tự động, vui lòng thử lại!');
       });
@@ -864,7 +972,7 @@
                 <input type="text" id="edit-agent-name-${ag.id}" value="${escapeHtml(ag.name)}" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-zinc-200 font-bold text-zinc-900" />
               </div>
               <div class="sm:col-span-4">
-                <label class="block text-[10px] text-zinc-400 font-bold uppercase mb-0.5">Số điện thoại</label>
+                <label class="block text-[10px] text-zinc-400 font-bold uppercase mb-0.5">Số điện thoại / Zalo</label>
                 <input type="text" id="edit-agent-phone-${ag.id}" value="${escapeHtml(ag.phone)}" class="w-full px-2.5 py-1.5 rounded-xl bg-white border border-zinc-200 font-bold text-zinc-900" />
               </div>
               <div class="sm:col-span-4">
@@ -887,15 +995,12 @@
 
     // ================= CẤU HÌNH TRANG, DANH MỤC, KHU VỰC & GIÁ =================
     function openSettingsModal() {
-      // 1. Điền thông tin Tên trang & PIN Admin
       document.getElementById('setting-site-title').value = appData.meta?.siteTitle || 'Camy Airbnb Portfolio';
       document.getElementById('setting-site-subtitle').value = appData.meta?.siteSubtitle || 'Hệ thống lưu trữ & chia sẻ phòng';
       document.getElementById('setting-admin-pin').value = appData.meta?.adminPin || '8888';
 
-      // 2. Điền danh sách Danh mục đầu trang (Categories)
       renderSettingsCategoriesList();
 
-      // 3. Điền Khu vực & Giá
       const areas = appData.meta?.areas || [];
       const prices = appData.meta?.priceMilestones || [];
 
@@ -1156,7 +1261,7 @@
 
       const roomsList = Object.values(appData.rooms || {});
       const totalRooms = roomsList.length;
-      const emptyRooms = roomsList.filter(r => r.status === 'Trống').length;
+      const emptyRooms = roomsList.filter(r => (r.status || 'Trống') === 'Trống').length;
       const busyRooms = totalRooms - emptyRooms;
 
       // Cập nhật KPI an toàn
@@ -1170,6 +1275,23 @@
       const searchQuery = (document.getElementById('search-input')?.value || '').toLowerCase();
       const areaFilter = areaSel.value;
       const priceFilter = priceSel.value;
+      const statusFilter = document.getElementById('filter-status')?.value || 'ALL';
+
+      // Đánh dấu nổi bật thẻ KPI đang được chọn lọc
+      const kpiCardEmpty = document.getElementById('kpi-card-empty');
+      const kpiCardBusy = document.getElementById('kpi-card-busy');
+      if (kpiCardEmpty) {
+        const isFilteringEmpty = statusFilter === 'Trống' || currentCategoryFilter === 'AVAILABLE';
+        kpiCardEmpty.className = `text-left p-3.5 md:p-4 rounded-2xl bg-white border shadow-xs flex items-center justify-between transition cursor-pointer ${
+          isFilteringEmpty ? 'border-emerald-600 ring-2 ring-emerald-500/30 bg-emerald-50/20' : 'border-zinc-200 hover:border-emerald-500'
+        }`;
+      }
+      if (kpiCardBusy) {
+        const isFilteringBusy = statusFilter === 'Đang thuê';
+        kpiCardBusy.className = `text-left p-3.5 md:p-4 rounded-2xl bg-white border shadow-xs flex items-center justify-between transition cursor-pointer ${
+          isFilteringBusy ? 'border-rose-500 ring-2 ring-rose-500/30 bg-rose-50/20' : 'border-zinc-200 hover:border-rose-400'
+        }`;
+      }
 
       let filtered = roomsList.filter(r => {
         const matchSearch = !searchQuery ||
@@ -1179,18 +1301,24 @@
           (r.amenities || '').toLowerCase().includes(searchQuery);
 
         const matchArea = areaFilter === 'ALL' || r.area === areaFilter;
+        const roomStatus = r.status || 'Trống';
+        const matchStatus = statusFilter === 'ALL' || roomStatus === statusFilter;
 
-        const price = Number(r.price) || 0;
+        const primaryPrice = Number(r.price) || 0;
+        const secondaryPrice = Number(r.secondaryPrice) || 0;
         let matchPrice = true;
         if (priceFilter !== 'ALL') {
-          matchPrice = price < Number(priceFilter);
+          const maxLimit = Number(priceFilter);
+          matchPrice = primaryPrice <= maxLimit || (secondaryPrice > 0 && secondaryPrice <= maxLimit);
         }
 
-        return matchSearch && matchArea && matchPrice;
+        return matchSearch && matchArea && matchStatus && matchPrice;
       });
 
-      // Lọc theo Category Tabs (Hỗ trợ cả danh mục mặc định lẫn danh mục tùy chỉnh)
-      if (currentCategoryFilter === 'HOT') {
+      // Lọc theo Category Tabs (Hỗ trợ cả tab "🟢 Đang Trống" và các danh mục khác)
+      if (currentCategoryFilter === 'AVAILABLE') {
+        filtered = filtered.filter(r => (r.status || 'Trống') === 'Trống');
+      } else if (currentCategoryFilter === 'HOT') {
         filtered = filtered.filter(r => r.isHot);
       } else if (currentCategoryFilter === 'PET') {
         filtered = filtered.filter(r => r.petAllowed);
@@ -1209,7 +1337,7 @@
       if (!grid) return;
 
       if (filtered.length === 0) {
-        grid.innerHTML = `<div class="col-span-full p-12 text-center text-sm text-zinc-400 bg-white rounded-3xl border border-zinc-200">Không tìm thấy căn hộ hoặc phòng phù hợp.</div>`;
+        grid.innerHTML = `<div class="col-span-full p-12 text-center text-sm text-zinc-400 bg-white rounded-3xl border border-zinc-200">Không tìm thấy căn hộ hoặc phòng phù hợp với bộ lọc hiện tại.</div>`;
         return;
       }
 
@@ -1233,6 +1361,10 @@
               .join('')
           : '';
 
+        const hasSecondaryPrice = Number(r.secondaryPrice) > 0;
+        const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
+        const cleanZaloPhone = cleanPhoneForZalo(phoneToUse);
+
         return `
           <div class="bg-white rounded-3xl border border-zinc-200 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition group">
             <div>
@@ -1243,8 +1375,11 @@
                   ${statusBadgeHtml}
                   <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-zinc-900/80 text-white backdrop-blur-xs">${escapeHtml(r.area || 'Khu vực')}</span>
                 </div>
-                <div class="absolute bottom-3 right-3 bg-zinc-900/80 backdrop-blur-xs text-white px-3 py-1.5 rounded-2xl text-xs font-extrabold shadow">
-                  ${formatCurrency(r.price, r.priceUnit)}
+
+                <!-- Nhãn hiển thị song song 2 mức giá trên góc ảnh -->
+                <div class="absolute bottom-3 right-3 bg-zinc-900/85 backdrop-blur-xs text-white px-3 py-1.5 rounded-2xl text-right shadow space-y-0.5">
+                  <div class="text-xs font-extrabold">${formatCurrency(r.price, r.priceUnit)}</div>
+                  ${hasSecondaryPrice ? `<div class="text-[10px] font-bold text-amber-300 border-t border-white/15 pt-0.5">📅 ${formatCurrency(r.secondaryPrice, r.secondaryPriceUnit || 'tháng')}</div>` : ''}
                 </div>
               </div>
 
@@ -1269,16 +1404,19 @@
               </div>
             </div>
 
-            <div class="p-4 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between gap-2">
+            <div class="p-4 bg-zinc-50 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-1.5">
               <button onclick="openDetailModal('${r.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs transition flex items-center justify-center gap-1.5">
                 <i data-lucide="eye" class="w-4 h-4"></i> Chi Tiết
               </button>
-              <button onclick="copyRoomShareText(event, '${r.id}')" title="Copy thông tin gửi Zalo cho khách" class="py-2.5 px-3 rounded-xl bg-zinc-200/80 hover:bg-zinc-300 text-zinc-800 font-extrabold text-xs transition flex items-center gap-1">
+              <a href="https://zalo.me/${cleanZaloPhone}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Mở Zalo chat trực tiếp" class="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition flex items-center gap-1">
+                <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Zalo
+              </a>
+              <button onclick="copyRoomShareText(event, '${r.id}')" title="Copy thông tin gửi Zalo cho khách" class="py-2.5 px-2.5 rounded-xl bg-zinc-200/80 hover:bg-zinc-300 text-zinc-800 font-extrabold text-xs transition flex items-center gap-1">
                 <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
               </button>
               ${currentUserRole ? `
-                <button onclick="openRoomModal('${r.id}')" class="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs transition">Sửa</button>
-                <button onclick="deleteRoom('${r.id}')" class="py-2.5 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition">Xóa</button>
+                <button onclick="openRoomModal('${r.id}')" class="py-2.5 px-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs transition">Sửa</button>
+                <button onclick="deleteRoom('${r.id}')" class="py-2.5 px-2.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold text-xs transition">Xóa</button>
               ` : ''}
             </div>
           </div>
@@ -1293,10 +1431,24 @@
       if (!r) return;
 
       const unitText = (r.priceUnit || 'đêm').trim();
+      const hasSecondaryPrice = Number(r.secondaryPrice) > 0;
+      const secondaryUnitText = (r.secondaryPriceUnit || 'tháng').trim();
+
       document.getElementById('detail-name').textContent = r.name;
       document.getElementById('detail-address').textContent = `${r.area} — ${r.address}`;
-      document.getElementById('detail-price-label').textContent = `Giá thuê / ${unitText}`;
+      document.getElementById('detail-price-label').textContent = hasSecondaryPrice
+        ? `Bảng giá thuê (${unitText} & ${secondaryUnitText})`
+        : `Giá thuê / ${unitText}`;
       document.getElementById('detail-price').textContent = formatCurrency(r.price, unitText);
+
+      const secPriceEl = document.getElementById('detail-secondary-price');
+      if (hasSecondaryPrice) {
+        secPriceEl.classList.remove('hidden');
+        secPriceEl.textContent = `📅 Giá theo ${secondaryUnitText}: ${formatCurrency(r.secondaryPrice, secondaryUnitText)}`;
+      } else {
+        secPriceEl.classList.add('hidden');
+      }
+
       document.getElementById('detail-note').textContent = r.note || 'Không có ghi chú thêm.';
       document.getElementById('detail-capacity').textContent = `👥 Tối đa ${r.capacity || 2} khách (${r.bedrooms || 1} PN)`;
 
@@ -1340,9 +1492,12 @@
         socialBox.classList.add('hidden');
       }
 
+      // Cập nhật số điện thoại cho cả 2 nút Gọi Điện + Mở Zalo trực tiếp
       const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
+      const cleanZaloPhone = cleanPhoneForZalo(phoneToUse);
       document.getElementById('detail-phone').textContent = phoneToUse;
-      document.getElementById('detail-call-btn').href = `tel:${phoneToUse}`;
+      document.getElementById('detail-call-btn').href = `tel:${cleanZaloPhone}`;
+      document.getElementById('detail-zalo-btn').href = `https://zalo.me/${cleanZaloPhone}`;
       document.getElementById('detail-copy-btn').onclick = (e) => copyRoomShareText(e, r.id);
 
       const internalBox = document.getElementById('detail-internal-note-box');
@@ -1403,6 +1558,8 @@
         document.getElementById('room-address').value = r.address;
         document.getElementById('room-price').value = r.price;
         document.getElementById('room-price-unit').value = r.priceUnit || 'đêm';
+        document.getElementById('room-secondary-price').value = r.secondaryPrice && Number(r.secondaryPrice) > 0 ? r.secondaryPrice : '';
+        document.getElementById('room-secondary-price-unit').value = r.secondaryPriceUnit || 'tháng';
         document.getElementById('room-bedrooms').value = r.bedrooms || 1;
         document.getElementById('room-capacity').value = r.capacity || 2;
         document.getElementById('room-status').value = r.status || 'Trống';
@@ -1429,6 +1586,8 @@
         document.getElementById('room-address').value = '';
         document.getElementById('room-price').value = 500000;
         document.getElementById('room-price-unit').value = 'đêm';
+        document.getElementById('room-secondary-price').value = '';
+        document.getElementById('room-secondary-price-unit').value = 'tháng';
         document.getElementById('room-bedrooms').value = 1;
         document.getElementById('room-capacity').value = 2;
         document.getElementById('room-status').value = 'Trống';
@@ -1451,6 +1610,9 @@
       const id = document.getElementById('room-id').value || ('room-' + Date.now());
       const checkedCustomCategories = Array.from(document.querySelectorAll('.room-custom-cat-checkbox:checked')).map(cb => cb.value);
 
+      const rawSecPrice = parseFloat(document.getElementById('room-secondary-price').value);
+      const secondaryPrice = (!isNaN(rawSecPrice) && rawSecPrice > 0) ? rawSecPrice : 0;
+
       const roomData = {
         id,
         name: document.getElementById('room-name').value.trim(),
@@ -1459,6 +1621,8 @@
         address: document.getElementById('room-address').value.trim(),
         price: parseFloat(document.getElementById('room-price').value) || 0,
         priceUnit: document.getElementById('room-price-unit').value.trim() || 'đêm',
+        secondaryPrice,
+        secondaryPriceUnit: document.getElementById('room-secondary-price-unit').value.trim() || 'tháng',
         bedrooms: parseInt(document.getElementById('room-bedrooms').value, 10) || 1,
         capacity: parseInt(document.getElementById('room-capacity').value, 10) || 2,
         status: document.getElementById('room-status').value,

@@ -106,7 +106,7 @@
   <div class="bg-white border-b border-zinc-200 px-4 md:px-8 py-2.5 shadow-xs overflow-x-auto no-scrollbar">
     <div class="max-w-7xl mx-auto flex items-center justify-between gap-4 min-w-max text-xs font-bold text-zinc-600">
       <div class="flex items-center gap-6">
-        <button onclick="setCategoryFilter('ALL')" data-cat="ALL" class="cat-chip pb-2 border-b-2 border-zinc-900 text-zinc-900 transition flex items-center gap-1.5">🏠 Tất cả</button>
+        <button onclick="setCategoryFilter('ALL')" data-cat="ALL" class="cat-chip pb-2 border-b-2 border-zinc-900 text-zinc-900 font-extrabold transition flex items-center gap-1.5">🏠 Tất cả</button>
         <button onclick="setCategoryFilter('HOT')" data-cat="HOT" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🔥 Căn Hot</button>
         <button onclick="setCategoryFilter('PET')" data-cat="PET" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🐾 Nuôi Pet</button>
         <button onclick="setCategoryFilter('BIKE')" data-cat="BIKE" class="cat-chip pb-2 border-b-2 border-transparent hover:text-zinc-900 transition flex items-center gap-1.5">🚲 Xe điện</button>
@@ -127,7 +127,7 @@
     <div id="admin-toolbar" class="hidden flex flex-wrap items-center justify-between gap-3 bg-zinc-900 text-white p-4 rounded-2xl shadow-md">
       <div class="flex items-center gap-2 text-xs font-extrabold">
         <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span id="admin-greeting-text">Đang ở chế độ Quản lý</span>
+        <span id="admin-greeting-text">Đang ở chế độ Quản lý (Bấm vào nhãn Trống/Đang thuê trên ảnh để đổi nhanh)</span>
       </div>
       <div class="flex flex-wrap gap-2">
         <button onclick="openRoomModal()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
@@ -165,7 +165,7 @@
 
       <div class="p-3.5 md:p-4 rounded-2xl bg-white border border-zinc-200 shadow-xs flex items-center justify-between">
         <div>
-          <p class="text-[10px] md:text-xs font-bold uppercase text-rose-500">Đang Có Khách</p>
+          <p class="text-[10px] md:text-xs font-bold uppercase text-rose-500">Đang Có Khách / Dọn</p>
           <p id="kpi-busy-rooms" class="text-lg md:text-2xl font-black text-rose-600 mt-0.5">0</p>
         </div>
         <div class="w-8 h-8 md:w-10 md:h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center font-bold text-sm md:text-base">🔴</div>
@@ -219,13 +219,13 @@
       <div class="space-y-3 text-xs">
         <div class="flex flex-wrap gap-2 pt-1" id="detail-amenities-tags"></div>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-2">
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
+          <div id="detail-pet-box" class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
             <span id="detail-pet">🐾 Cho nuôi Pet</span>
           </div>
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
+          <div id="detail-bike-box" class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
             <span id="detail-bike">🚲 Xe đạp điện</span>
           </div>
-          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2">
+          <div class="p-3 rounded-xl bg-zinc-50 border border-zinc-200 text-zinc-900 font-bold flex items-center gap-2 col-span-2 sm:col-span-1">
             <span id="detail-capacity">👥 Tối đa người</span>
           </div>
         </div>
@@ -242,13 +242,18 @@
         </div>
       </div>
 
-      <div class="pt-3 border-t border-zinc-100 flex items-center justify-between gap-3">
+      <div class="pt-3 border-t border-zinc-100 flex flex-wrap items-center justify-between gap-3">
         <div class="text-xs text-zinc-600">
           Liên hệ đặt phòng: <strong id="detail-phone" class="text-zinc-900">--</strong>
         </div>
-        <a id="detail-call-btn" href="#" class="px-6 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition">
-          <i data-lucide="phone-call" class="w-4 h-4"></i> Gọi Điện / Zalo
-        </a>
+        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <button id="detail-copy-btn" type="button" class="px-4 py-3 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-extrabold text-xs flex items-center gap-1.5 transition">
+            <i data-lucide="copy" class="w-4 h-4"></i> Copy gửi khách
+          </button>
+          <a id="detail-call-btn" href="#" class="px-5 py-3 rounded-2xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs shadow-lg flex items-center gap-2 transition">
+            <i data-lucide="phone-call" class="w-4 h-4"></i> Gọi / Zalo
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -455,7 +460,7 @@
           <p class="font-extrabold text-zinc-900">💡 Hướng dẫn phân quyền:</p>
           <ul class="list-disc list-inside text-zinc-600 space-y-1">
             <li><strong>Mã PIN Admin (Mặc định: 8888):</strong> Toàn quyền thêm/sửa/xóa phòng, đổi cấu hình, tạo mã nhân sự.</li>
-            <li><strong>Mã PIN Quản lý:</strong> Quản lý có quyền cập nhật nhanh trạng thái trống/bận và thêm căn hộ mới.</li>
+            <li><strong>Mã PIN Quản lý:</strong> Quản lý có quyền bấm đổi nhanh trạng thái trống/bận trên thẻ phòng và thêm/sửa căn hộ.</li>
           </ul>
         </div>
 
@@ -532,6 +537,8 @@
 
         const urlParams = new URLSearchParams(window.location.search);
         const refCode = urlParams.get('ref');
+        const directRoomId = urlParams.get('room');
+        let openedDirectRoom = false;
 
         rootRef.on('value', (snapshot) => {
           const val = snapshot.val();
@@ -550,6 +557,11 @@
           }
 
           renderList();
+
+          if (directRoomId && appData.rooms[directRoomId] && !openedDirectRoom) {
+            openedDirectRoom = true;
+            openDetailModal(directRoomId);
+          }
         });
       } catch (err) {
         console.error('Firebase error:', err);
@@ -565,6 +577,53 @@
         }`;
       });
       renderList();
+    }
+
+    // Đổi nhanh trạng thái Trống -> Đang thuê -> Đang dọn chỉ bằng 1 chạm
+    function quickToggleStatus(event, roomId) {
+      event.stopPropagation();
+      if (!currentUserRole) return;
+      const r = appData.rooms[roomId];
+      if (!r) return;
+
+      const order = ['Trống', 'Đang thuê', 'Đang dọn'];
+      const currentIndex = order.indexOf(r.status || 'Trống');
+      const nextStatus = order[(currentIndex + 1) % order.length];
+
+      rootRef.child(`rooms/${roomId}/status`).set(nextStatus);
+      showToast(`Đã chuyển "${r.code || r.name}" sang: ${nextStatus}`);
+    }
+
+    // Copy mẫu tin nhắn chuẩn bị sẵn cho Sale gửi Zalo / Messenger
+    function copyRoomShareText(event, roomId) {
+      if (event) event.stopPropagation();
+      const r = appData.rooms[roomId];
+      if (!r) return;
+
+      const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
+      const baseUrl = window.location.origin + window.location.pathname;
+      const urlParams = new URLSearchParams(window.location.search);
+      const refParam = urlParams.get('ref') || (currentAgent ? currentAgent.id : '');
+      const shareUrl = `${baseUrl}?room=${encodeURIComponent(r.id)}${refParam ? `&ref=${encodeURIComponent(refParam)}` : ''}`;
+
+      const lines = [
+        `🏠 ${r.name}${r.code ? ` (Mã: ${r.code})` : ''}`,
+        `📍 Khu vực: ${r.area} — ${r.address}`,
+        `💰 Giá thuê: ${formatCurrency(r.price)}`,
+        `🛏️ Sức chứa: ${r.bedrooms || 1} phòng ngủ • Tối đa ${r.capacity || 2} khách`,
+        `✨ Tiện ích: ${r.amenities || 'Đầy đủ tiện nghi'}`,
+        `${r.petAllowed ? '🐾 Cho phép nuôi Pet' : '🚫 Không nuôi Pet'} | ${r.bikeAllowed ? '🚲 Có hỗ trợ xe điện' : '🚲 Không kèm xe điện'}`,
+        r.note ? `📝 Lưu ý: ${r.note}` : '',
+        r.socialLink ? `🎬 Video thực tế: ${r.socialLink}` : '',
+        `🔗 Xem hình ảnh chi tiết: ${shareUrl}`,
+        `📞 Liên hệ đặt phòng (Call/Zalo): ${phoneToUse}`
+      ].filter(Boolean).join('\n');
+
+      navigator.clipboard.writeText(lines).then(() => {
+        showToast('📋 Đã copy thông tin căn hộ để gửi khách!');
+      }).catch(() => {
+        alert('Trình duyệt không hỗ trợ copy tự động, vui lòng thử lại!');
+      });
     }
 
     function handleLoginSubmit(e) {
@@ -782,11 +841,11 @@
         if (currentUserRole === 'admin') {
           agentsBtn?.classList.remove('hidden');
           settingsBtn?.classList.remove('hidden');
-          if (greeting) greeting.textContent = 'Đang ở chế độ Admin tối cao';
+          if (greeting) greeting.textContent = 'Chế độ Admin • Bấm trực tiếp vào nhãn Trống/Đang thuê trên ảnh để đổi nhanh';
         } else {
           agentsBtn?.classList.add('hidden');
           settingsBtn?.classList.add('hidden');
-          if (greeting) greeting.textContent = 'Đang ở chế độ Quản lý phòng';
+          if (greeting) greeting.textContent = 'Chế độ Quản lý • Bấm trực tiếp vào nhãn Trống/Đang thuê trên ảnh để đổi nhanh';
         }
       } else {
         toolbar?.classList.add('hidden');
@@ -868,6 +927,10 @@
 
         const coverImg = (Array.isArray(r.mediaList) && r.mediaList.length > 0) ? r.mediaList[0] : (r.imageUrl || 'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=800&q=80');
 
+        const statusBadgeHtml = currentUserRole
+          ? `<button type="button" onclick="quickToggleStatus(event, '${r.id}')" title="Bấm để đổi nhanh trạng thái" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge} hover:ring-2 hover:ring-zinc-900 transition flex items-center gap-1 cursor-pointer">🔄 ${escapeHtml(r.status || 'Trống')}</button>`
+          : `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge}">${escapeHtml(r.status || 'Trống')}</span>`;
+
         return `
           <div class="bg-white rounded-3xl border border-zinc-200 shadow-xs overflow-hidden flex flex-col justify-between hover:shadow-md transition group">
             <div>
@@ -875,7 +938,7 @@
                 <img src="${coverImg}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="${escapeHtml(r.name)}" />
                 <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
                   ${r.isHot ? '<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs bg-amber-500 text-white">🔥 Căn Hot</span>' : ''}
-                  <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge}">${escapeHtml(r.status || 'Trống')}</span>
+                  ${statusBadgeHtml}
                   <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-zinc-900/80 text-white backdrop-blur-xs">${escapeHtml(r.area || 'Khu vực')}</span>
                 </div>
                 <div class="absolute bottom-3 right-3 bg-zinc-900/80 backdrop-blur-xs text-white px-3 py-1.5 rounded-2xl text-xs font-extrabold shadow">
@@ -885,9 +948,9 @@
 
               <div class="p-5 space-y-3">
                 <div>
-                  <div class="flex items-center justify-between">
-                    <p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">📍 ${escapeHtml(r.address)}</p>
-                    ${r.code ? `<span class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-zinc-100 text-zinc-700">Mã: ${escapeHtml(r.code)}</span>` : ''}
+                  <div class="flex items-center justify-between gap-2">
+                    <p class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider truncate">📍 ${escapeHtml(r.address)}</p>
+                    ${r.code ? `<span class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded bg-zinc-100 text-zinc-700 shrink-0">Mã: ${escapeHtml(r.code)}</span>` : ''}
                   </div>
                   <h3 onclick="openDetailModal('${r.id}')" class="font-extrabold text-zinc-900 text-base md:text-lg mt-1 cursor-pointer hover:text-rose-600 transition line-clamp-1">${escapeHtml(r.name)}</h3>
                 </div>
@@ -905,7 +968,10 @@
 
             <div class="p-4 bg-zinc-50 border-t border-zinc-100 flex items-center justify-between gap-2">
               <button onclick="openDetailModal('${r.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs transition flex items-center justify-center gap-1.5">
-                <i data-lucide="eye" class="w-4 h-4"></i> Xem Chi Tiết
+                <i data-lucide="eye" class="w-4 h-4"></i> Chi Tiết
+              </button>
+              <button onclick="copyRoomShareText(event, '${r.id}')" title="Copy thông tin gửi Zalo cho khách" class="py-2.5 px-3 rounded-xl bg-zinc-200/80 hover:bg-zinc-300 text-zinc-800 font-extrabold text-xs transition flex items-center gap-1">
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
               </button>
               ${currentUserRole ? `
                 <button onclick="openRoomModal('${r.id}')" class="py-2.5 px-3 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs transition">Sửa</button>
@@ -927,7 +993,28 @@
       document.getElementById('detail-address').textContent = `${r.area} — ${r.address}`;
       document.getElementById('detail-price').textContent = formatCurrency(r.price);
       document.getElementById('detail-note').textContent = r.note || 'Không có ghi chú thêm.';
-      document.getElementById('detail-capacity').textContent = `Tối đa ${r.capacity || 2} người`;
+      document.getElementById('detail-capacity').textContent = `👥 Tối đa ${r.capacity || 2} khách (${r.bedrooms || 1} PN)`;
+
+      // Cập nhật động trạng thái Pet & Xe điện trong Modal chi tiết
+      const petEl = document.getElementById('detail-pet');
+      const petBox = document.getElementById('detail-pet-box');
+      if (r.petAllowed) {
+        petEl.textContent = '🐾 Cho nuôi Pet';
+        petBox.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 font-bold flex items-center gap-2';
+      } else {
+        petEl.textContent = '🚫 Không nuôi Pet';
+        petBox.className = 'p-3 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-500 font-bold flex items-center gap-2';
+      }
+
+      const bikeEl = document.getElementById('detail-bike');
+      const bikeBox = document.getElementById('detail-bike-box');
+      if (r.bikeAllowed) {
+        bikeEl.textContent = '🚲 Có xe đạp điện';
+        bikeBox.className = 'p-3 rounded-xl bg-blue-50 border border-blue-200 text-blue-900 font-bold flex items-center gap-2';
+      } else {
+        bikeEl.textContent = '🚲 Không kèm xe điện';
+        bikeBox.className = 'p-3 rounded-xl bg-zinc-100 border border-zinc-200 text-zinc-500 font-bold flex items-center gap-2';
+      }
       
       const codeEl = document.getElementById('detail-code');
       codeEl.textContent = r.code ? `Mã: ${r.code}` : 'Camy Home';
@@ -951,6 +1038,7 @@
       const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
       document.getElementById('detail-phone').textContent = phoneToUse;
       document.getElementById('detail-call-btn').href = `tel:${phoneToUse}`;
+      document.getElementById('detail-copy-btn').onclick = (e) => copyRoomShareText(e, r.id);
 
       const internalBox = document.getElementById('detail-internal-note-box');
       const internalText = document.getElementById('detail-internal-note');
@@ -962,7 +1050,9 @@
       }
 
       const statusBadge = document.getElementById('detail-status-badge');
-      statusBadge.className = `text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${r.status === 'Trống' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}`;
+      const badgeColor = r.status === 'Trống' ? 'bg-emerald-100 text-emerald-800' :
+                         r.status === 'Đang thuê' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800';
+      statusBadge.className = `text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${badgeColor}`;
       statusBadge.textContent = r.status || 'Trống';
 
       const amenitiesArr = (r.amenities || '').split(',').map(s => s.trim()).filter(Boolean);

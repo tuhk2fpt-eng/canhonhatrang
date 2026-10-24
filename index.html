@@ -126,25 +126,58 @@
   <!-- CONTAINER CHÍNH -->
   <main class="max-w-7xl mx-auto p-4 md:p-8 space-y-6 w-full flex-1">
 
-    <!-- BẢNG ĐIỀU KHIỂN QUẢN TRỊ (HIỆN KHI ĐĂNG NHẬP) -->
-    <div id="admin-toolbar" class="hidden flex flex-wrap items-center justify-between gap-3 bg-zinc-900 text-white p-4 rounded-2xl shadow-md">
-      <div class="flex items-center gap-2 text-xs font-extrabold">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span id="admin-greeting-text">Đang ở chế độ Quản lý (Bấm vào nhãn Trống/Đang thuê trên ảnh để đổi nhanh)</span>
+    <!-- BẢNG ĐIỀU KHIỂN QUẢN TRỊ & CÔNG CỤ ĐĂNG FACEBOOK TỰ ĐỘNG THEO THỨ TỰ -->
+    <div id="admin-toolbar" class="hidden flex-col gap-3.5 bg-zinc-900 text-white p-4 rounded-2xl shadow-md">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2 text-xs font-extrabold">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="admin-greeting-text">Đang ở chế độ Quản lý (Bấm vào nhãn Trống/Đang thuê trên ảnh để đổi nhanh)</span>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="openRoomModal()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm Căn Mới
+          </button>
+          <button onclick="openModal('agentsModal')" id="admin-agents-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
+            <i data-lucide="users" class="w-4 h-4"></i> Nhân sự & Mã PIN
+          </button>
+          <button onclick="openSettingsModal()" id="admin-settings-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
+            <i data-lucide="sliders" class="w-4 h-4"></i> Cấu hình Trang & Danh mục
+          </button>
+          <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition">
+            Thoát
+          </button>
+        </div>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <button onclick="openRoomModal()" class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
-          <i data-lucide="plus-circle" class="w-4 h-4"></i> Thêm Căn Mới
-        </button>
-        <button onclick="openModal('agentsModal')" id="admin-agents-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
-          <i data-lucide="users" class="w-4 h-4"></i> Nhân sự & Mã PIN
-        </button>
-        <button onclick="openSettingsModal()" id="admin-settings-btn" class="hidden px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-extrabold shadow transition flex items-center gap-1.5">
-          <i data-lucide="sliders" class="w-4 h-4"></i> Cấu hình Trang & Danh mục
-        </button>
-        <button onclick="handleLogout()" class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition">
-          Thoát
-        </button>
+
+      <!-- THANH CÔNG CỤ BÁN TỰ ĐỘNG 1-CHẠM ĐĂNG FACEBOOK THEO THỨ TỰ -->
+      <div class="pt-3 border-t border-zinc-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-zinc-950/60 p-3.5 rounded-xl border border-zinc-800/80">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-blue-600 text-[10px] font-black uppercase tracking-wider">Auto Queue</span>
+            <span class="text-xs font-extrabold text-white">Đăng Facebook theo thứ tự (Tự lọc căn Trống chưa đăng)</span>
+          </div>
+          <p id="fb-queue-status-text" class="text-[11px] text-zinc-400 font-medium">
+            Đang kiểm tra danh sách căn hộ...
+          </p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            id="btn-auto-next-fb"
+            onclick="shareNextUnpostedRoomToFacebook()"
+            class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 active:scale-95 text-white text-xs font-extrabold shadow-lg transition flex items-center justify-center gap-2 cursor-pointer"
+          >
+            <i data-lucide="send" class="w-4 h-4"></i> 🚀 Đăng căn tiếp theo lên FB
+          </button>
+          <button
+            type="button"
+            onclick="resetPostedRoomsQueue()"
+            title="Làm mới lại danh sách đã đăng để bắt đầu vòng đăng mới"
+            class="px-3 py-2.5 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+          >
+            <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reset vòng lặp
+          </button>
+        </div>
       </div>
     </div>
 
@@ -246,12 +279,15 @@
         </div>
       </div>
 
-      <!-- KHU VỰC LIÊN HỆ: COPY + MỞ ZALO TRỰC TIẾP + GỌI ĐIỆN -->
+      <!-- KHU VỰC LIÊN HỆ: ĐĂNG FB KÈM ẢNH + COPY + MỞ ZALO TRỰC TIẾP + GỌI ĐIỆN -->
       <div class="pt-3 border-t border-zinc-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div class="text-xs text-zinc-600">
           Hotline / Zalo hỗ trợ: <strong id="detail-phone" class="text-zinc-900 text-sm">--</strong>
         </div>
         <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+          <button id="detail-fb-share-btn" type="button" class="px-3.5 py-2.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs shadow-md flex items-center gap-1.5 transition cursor-pointer">
+            <i data-lucide="share-2" class="w-4 h-4"></i> Đăng FB (Kèm ảnh)
+          </button>
           <button id="detail-copy-btn" type="button" class="px-3.5 py-2.5 rounded-2xl bg-zinc-100 hover:bg-zinc-200 text-zinc-900 font-extrabold text-xs flex items-center gap-1.5 transition">
             <i data-lucide="copy" class="w-4 h-4"></i> Copy mẫu
           </button>
@@ -550,7 +586,7 @@
           <p class="font-extrabold text-zinc-900">💡 Hướng dẫn phân quyền:</p>
           <ul class="list-disc list-inside text-zinc-600 space-y-1">
             <li><strong>Mã PIN Admin:</strong> Toàn quyền sửa tên trang, sửa danh mục đầu trang, thêm/sửa/xóa phòng và đổi mã PIN cho nhân sự.</li>
-            <li><strong>Mã PIN Quản lý:</strong> Đổi nhanh trạng thái trống/bận trên thẻ phòng và thêm/sửa thông tin căn hộ.</li>
+            <li><strong>Mã PIN Quản lý:</strong> Đổi nhanh trạng thái trống/bận trên thẻ phòng, dùng công cụ đăng FB theo thứ tự và thêm/sửa căn hộ.</li>
           </ul>
         </div>
 
@@ -572,6 +608,7 @@
   <script>
     const DATABASE_URL = 'https://canhonhatrang-default-rtdb.firebaseio.com/';
     const DB_ROOT_PATH = 'camy_airbnb_portfolio_v3';
+    const FB_POSTED_STORAGE_KEY = 'camy_fb_posted_rooms_v1';
 
     let db = null;
     let rootRef = null;
@@ -634,6 +671,250 @@
       meta: { ...DEFAULT_DB_DATA.meta },
       rooms: {}
     };
+
+    // ================= BỘ QUẢN LÝ HÀNG ĐỢI ĐĂNG FACEBOOK THEO THỨ TỰ =================
+    function getPostedRoomIds() {
+      try {
+        const raw = localStorage.getItem(FB_POSTED_STORAGE_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function savePostedRoomIds(idsArr) {
+      try {
+        localStorage.setItem(FB_POSTED_STORAGE_KEY, JSON.stringify(idsArr));
+      } catch (e) {}
+    }
+
+    function isRoomPostedToFb(roomId) {
+      return getPostedRoomIds().includes(roomId);
+    }
+
+    function markRoomAsPostedToFb(roomId) {
+      const list = getPostedRoomIds();
+      if (!list.includes(roomId)) {
+        list.push(roomId);
+        savePostedRoomIds(list);
+      }
+    }
+
+    function toggleRoomPostedStatus(event, roomId) {
+      if (event) event.stopPropagation();
+      const list = getPostedRoomIds();
+      const idx = list.indexOf(roomId);
+      const r = appData.rooms[roomId];
+      const roomLabel = r ? (r.code || r.name) : roomId;
+
+      if (idx >= 0) {
+        list.splice(idx, 1);
+        savePostedRoomIds(list);
+        showToast(`⏳ Đã đưa "${roomLabel}" trở lại hàng chờ Chưa đăng FB!`);
+      } else {
+        list.push(roomId);
+        savePostedRoomIds(list);
+        showToast(`✅ Đã đánh dấu "${roomLabel}" là Đã đăng FB!`);
+      }
+      renderList();
+    }
+
+    function resetPostedRoomsQueue() {
+      if (confirm('Bạn muốn làm mới (Reset) danh sách đã đăng để bắt đầu đăng lại từ căn đầu tiên?')) {
+        savePostedRoomIds([]);
+        renderList();
+        showToast('🔄 Đã làm mới hàng đợi! Sẵn sàng đăng lại từ căn số 1.');
+      }
+    }
+
+    // Lấy danh sách các căn hộ Đang Trống được sắp xếp cố định theo thứ tự (Căn Hot -> Mã phòng -> ID)
+    function getOrderedAvailableRoomsForQueue() {
+      const allRooms = Object.values(appData.rooms || {});
+      const availableRooms = allRooms.filter(r => (r.status || 'Trống') === 'Trống');
+
+      availableRooms.sort((a, b) => {
+        const hotDiff = (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0);
+        if (hotDiff !== 0) return hotDiff;
+        const codeA = (a.code || a.name || '').toUpperCase();
+        const codeB = (b.code || b.name || '').toUpperCase();
+        return codeA.localeCompare(codeB, 'vi');
+      });
+
+      return availableRooms;
+    }
+
+    function updateFbQueueStatusUI() {
+      const statusEl = document.getElementById('fb-queue-status-text');
+      const btnEl = document.getElementById('btn-auto-next-fb');
+      if (!statusEl || !btnEl) return;
+
+      const orderedEmptyRooms = getOrderedAvailableRoomsForQueue();
+      const postedIds = getPostedRoomIds();
+      const unpostedRooms = orderedEmptyRooms.filter(r => !postedIds.includes(r.id));
+      const postedCount = orderedEmptyRooms.length - unpostedRooms.length;
+
+      if (orderedEmptyRooms.length === 0) {
+        statusEl.textContent = 'Hiện không có căn hộ nào ở trạng thái "Trống" để đăng.';
+        btnEl.innerHTML = `<i data-lucide="check-circle" class="w-4 h-4"></i> Không có phòng trống`;
+        lucide.createIcons();
+        return;
+      }
+
+      if (unpostedRooms.length > 0) {
+        const nextRoom = unpostedRooms[0];
+        const nextLabel = nextRoom.code ? `[${nextRoom.code}] ${nextRoom.name}` : nextRoom.name;
+        statusEl.innerHTML = `Tiến độ: <strong class="text-emerald-400">Đã đăng ${postedCount}/${orderedEmptyRooms.length} căn trống</strong> • Căn tiếp theo: <strong class="text-amber-300">${escapeHtml(nextLabel)}</strong>`;
+        btnEl.innerHTML = `<i data-lucide="send" class="w-4 h-4"></i> 🚀 Lấy & Đăng Căn Tiếp Theo (${escapeHtml(nextRoom.code || 'Tiếp')})`;
+      } else {
+        statusEl.innerHTML = `🎉 <strong class="text-emerald-400">Đã đăng hoàn tất ${orderedEmptyRooms.length}/${orderedEmptyRooms.length} căn trống!</strong> Bấm nút để xoay vòng lại từ đầu.`;
+        btnEl.innerHTML = `<i data-lucide="rotate-cw" class="w-4 h-4"></i> Đã đăng hết • Bấm để quay vòng mới`;
+      }
+      lucide.createIcons();
+    }
+
+    // Tạo nội dung bài viết chuẩn để đăng Facebook / gửi Zalo
+    function buildRoomPostText(r) {
+      const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
+      const cleanPhone = cleanPhoneForZalo(phoneToUse);
+      const baseUrl = window.location.origin + window.location.pathname;
+      const urlParams = new URLSearchParams(window.location.search);
+      const refParam = urlParams.get('ref') || (currentAgent ? currentAgent.id : '');
+      const shareUrl = `${baseUrl}?room=${encodeURIComponent(r.id)}${refParam ? `&ref=${encodeURIComponent(refParam)}` : ''}`;
+
+      const hasSecondaryPrice = Number(r.secondaryPrice) > 0;
+      const priceLine = hasSecondaryPrice
+        ? `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)} (Thuê theo ${r.secondaryPriceUnit || 'tháng'}: ${formatCurrency(r.secondaryPrice, r.secondaryPriceUnit || 'tháng')})`
+        : `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)}`;
+
+      return [
+        `🏠 ${r.name}${r.code ? ` (Mã: ${r.code})` : ''}`,
+        `📍 Khu vực: ${r.area} — ${r.address}`,
+        priceLine,
+        `🛏️ Sức chứa: ${r.bedrooms || 1} phòng ngủ • Tối đa ${r.capacity || 2} khách`,
+        `✨ Tiện ích: ${r.amenities || 'Đầy đủ tiện nghi'}`,
+        `${r.petAllowed ? '🐾 Cho phép nuôi Pet' : '🚫 Không nuôi Pet'} | ${r.bikeAllowed ? '🚲 Có hỗ trợ xe điện' : '🚲 Không kèm xe điện'}`,
+        r.note ? `📝 Lưu ý: ${r.note}` : '',
+        r.socialLink ? `🎬 Video thực tế: ${r.socialLink}` : '',
+        `🔗 Xem hình ảnh chi tiết: ${shareUrl}`,
+        `📞 Inbox hoặc gọi/Zalo: ${phoneToUse} (https://zalo.me/${cleanPhone})`
+      ].filter(Boolean).join('\n');
+    }
+
+    // Chuyển đổi ảnh Base64 hoặc URL của căn hộ thành đối tượng File thật để đẩy sang App Facebook trên Android/iOS
+    async function convertMediaSrcToFile(src, index, roomCode) {
+      const safeCode = (roomCode || 'camy').replace(/[^a-zA-Z0-9_-]/g, '');
+      const fileName = `${safeCode}_anh_${index + 1}.jpg`;
+
+      if (src.startsWith('data:')) {
+        const arr = src.split(',');
+        const mimeMatch = arr[0].match(/:(.*?);/);
+        const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new File([u8arr], fileName, { type: mime });
+      } else {
+        const response = await fetch(src, { mode: 'cors' });
+        const blob = await response.blob();
+        return new File([blob], fileName, { type: blob.type || 'image/jpeg' });
+      }
+    }
+
+    // Đẩy trực tiếp 1 căn hộ (Kèm chùm ảnh + Tự copy chữ) sang App Facebook của máy tính bảng Android
+    async function shareRoomToFacebook(event, roomId) {
+      if (event) event.stopPropagation();
+      const r = appData.rooms[roomId];
+      if (!r) return;
+
+      const postText = buildRoomPostText(r);
+
+      // 1. Luôn copy sẵn nội dung bài đăng vào bộ nhớ tạm (Clipboard) để người dùng chỉ việc Dán (Paste) vào Facebook
+      try {
+        await navigator.clipboard.writeText(postText);
+      } catch (err) {
+        console.warn('Clipboard copy warning:', err);
+      }
+
+      // 2. Đánh dấu căn hộ này là Đã đăng vào hàng đợi
+      markRoomAsPostedToFb(roomId);
+      renderList();
+
+      showToast(`📋 Đã copy bài "${r.code || r.name}" & đang chuẩn bị chùm ảnh đẩy sang Facebook...`);
+
+      // 3. Gom toàn bộ chùm ảnh của căn hộ (Tối đa 10 ảnh/lần chia sẻ)
+      const rawMedia = (Array.isArray(r.mediaList) && r.mediaList.length > 0)
+        ? r.mediaList.slice(0, 10)
+        : (r.imageUrl ? [r.imageUrl] : []);
+
+      const filesToShare = [];
+      for (let i = 0; i < rawMedia.length; i++) {
+        try {
+          const f = await convertMediaSrcToFile(rawMedia[i], i, r.code || r.id);
+          if (f) filesToShare.push(f);
+        } catch (err) {
+          console.warn('Skip image conversion error:', err);
+        }
+      }
+
+      // 4. Kích hoạt bảng Chia sẻ (Web Share API) gốc của Android / iPad
+      if (navigator.share) {
+        try {
+          if (filesToShare.length > 0 && navigator.canShare && navigator.canShare({ files: filesToShare })) {
+            await navigator.share({
+              files: filesToShare,
+              title: r.name,
+              text: postText
+            });
+            showToast(`✅ Đã đẩy ${filesToShare.length} ảnh sang Facebook! Hãy Dán (Paste) bài viết đã copy nhé.`);
+            return;
+          } else {
+            await navigator.share({
+              title: r.name,
+              text: postText
+            });
+            return;
+          }
+        } catch (shareErr) {
+          if (shareErr.name === 'AbortError') {
+            showToast('📋 Nội dung bài viết vẫn được giữ trong bộ nhớ tạm (Đã copy)!');
+            return;
+          }
+        }
+      }
+
+      alert(`📋 ĐÃ COPY NỘI DUNG CĂN "${r.code || r.name}"!\n\nTrình duyệt hiện tại không bật bảng Share trực tiếp, bạn chỉ cần mở Facebook và Dán (Paste) nội dung đã copy.`);
+    }
+
+    // Nút bấm Tự động lấy căn hộ CHƯA ĐĂNG tiếp theo theo đúng thứ tự
+    async function shareNextUnpostedRoomToFacebook() {
+      const orderedEmptyRooms = getOrderedAvailableRoomsForQueue();
+      if (orderedEmptyRooms.length === 0) {
+        alert('Hiện không có căn hộ nào ở trạng thái "Trống" để đăng!');
+        return;
+      }
+
+      const postedIds = getPostedRoomIds();
+      const unpostedRooms = orderedEmptyRooms.filter(r => !postedIds.includes(r.id));
+
+      if (unpostedRooms.length === 0) {
+        if (confirm(`🎉 Bạn đã đăng hết toàn bộ ${orderedEmptyRooms.length} căn hộ đang trống!\n\nBạn có muốn làm mới (Reset) danh sách để quay vòng đăng lại từ căn đầu tiên không?`)) {
+          savePostedRoomIds([]);
+          renderList();
+          const firstRoom = orderedEmptyRooms[0];
+          if (firstRoom) {
+            await shareRoomToFacebook(null, firstRoom.id);
+          }
+        }
+        return;
+      }
+
+      const nextRoom = unpostedRooms[0];
+      await shareRoomToFacebook(null, nextRoom.id);
+    }
 
     // Chuẩn hóa số điện thoại để tạo link Zalo & Tel chính xác
     function cleanPhoneForZalo(rawPhone) {
@@ -825,30 +1106,7 @@
       const r = appData.rooms[roomId];
       if (!r) return;
 
-      const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
-      const cleanPhone = cleanPhoneForZalo(phoneToUse);
-      const baseUrl = window.location.origin + window.location.pathname;
-      const urlParams = new URLSearchParams(window.location.search);
-      const refParam = urlParams.get('ref') || (currentAgent ? currentAgent.id : '');
-      const shareUrl = `${baseUrl}?room=${encodeURIComponent(r.id)}${refParam ? `&ref=${encodeURIComponent(refParam)}` : ''}`;
-
-      const hasSecondaryPrice = Number(r.secondaryPrice) > 0;
-      const priceLine = hasSecondaryPrice
-        ? `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)} (Thuê theo ${r.secondaryPriceUnit || 'tháng'}: ${formatCurrency(r.secondaryPrice, r.secondaryPriceUnit || 'tháng')})`
-        : `💰 Giá thuê: ${formatCurrency(r.price, r.priceUnit)}`;
-
-      const lines = [
-        `🏠 ${r.name}${r.code ? ` (Mã: ${r.code})` : ''}`,
-        `📍 Khu vực: ${r.area} — ${r.address}`,
-        priceLine,
-        `🛏️ Sức chứa: ${r.bedrooms || 1} phòng ngủ • Tối đa ${r.capacity || 2} khách`,
-        `✨ Tiện ích: ${r.amenities || 'Đầy đủ tiện nghi'}`,
-        `${r.petAllowed ? '🐾 Cho phép nuôi Pet' : '🚫 Không nuôi Pet'} | ${r.bikeAllowed ? '🚲 Có hỗ trợ xe điện' : '🚲 Không kèm xe điện'}`,
-        r.note ? `📝 Lưu ý: ${r.note}` : '',
-        r.socialLink ? `🎬 Video thực tế: ${r.socialLink}` : '',
-        `🔗 Xem hình ảnh chi tiết: ${shareUrl}`,
-        `📞 Gọi điện / Chat Zalo: ${phoneToUse} (https://zalo.me/${cleanPhone})`
-      ].filter(Boolean).join('\n');
+      const lines = buildRoomPostText(r);
 
       navigator.clipboard.writeText(lines).then(() => {
         showToast('📋 Đã copy thông tin căn hộ (kèm link Zalo) để gửi khách!');
@@ -1233,6 +1491,7 @@
 
       if (currentUserRole) {
         toolbar?.classList.remove('hidden');
+        toolbar?.classList.add('flex');
         if (currentUserRole === 'admin') {
           agentsBtn?.classList.remove('hidden');
           settingsBtn?.classList.remove('hidden');
@@ -1242,8 +1501,10 @@
           settingsBtn?.classList.add('hidden');
           if (greeting) greeting.textContent = 'Chế độ Quản lý • Bấm trực tiếp vào nhãn Trống/Đang thuê trên ảnh để đổi nhanh';
         }
+        updateFbQueueStatusUI();
       } else {
         toolbar?.classList.add('hidden');
+        toolbar?.classList.remove('flex');
       }
 
       const areas = appData.meta?.areas || [];
@@ -1330,8 +1591,14 @@
         filtered = filtered.filter(r => Array.isArray(r.customCategories) && r.customCategories.includes(currentCategoryFilter));
       }
 
-      // Ghim Căn Hot lên đầu
-      filtered.sort((a, b) => (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0));
+      // Sắp xếp cố định: Căn Hot lên đầu -> Theo Mã phòng (để đồng bộ với thứ tự đăng Facebook)
+      filtered.sort((a, b) => {
+        const hotDiff = (b.isHot ? 1 : 0) - (a.isHot ? 1 : 0);
+        if (hotDiff !== 0) return hotDiff;
+        const codeA = (a.code || a.name || '').toUpperCase();
+        const codeB = (b.code || b.name || '').toUpperCase();
+        return codeA.localeCompare(codeB, 'vi');
+      });
 
       const grid = document.getElementById('room-grid');
       if (!grid) return;
@@ -1343,6 +1610,7 @@
 
       const allCategoriesMap = {};
       getCategoriesList().forEach(c => { allCategoriesMap[c.id] = c.label; });
+      const postedIds = getPostedRoomIds();
 
       grid.innerHTML = filtered.map(r => {
         const statusBadge = r.status === 'Trống' ? 'bg-emerald-100 text-emerald-800' :
@@ -1353,6 +1621,13 @@
         const statusBadgeHtml = currentUserRole
           ? `<button type="button" onclick="quickToggleStatus(event, '${r.id}')" title="Bấm để đổi nhanh trạng thái" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge} hover:ring-2 hover:ring-zinc-900 transition flex items-center gap-1 cursor-pointer">🔄 ${escapeHtml(r.status || 'Trống')}</button>`
           : `<span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase shadow-xs ${statusBadge}">${escapeHtml(r.status || 'Trống')}</span>`;
+
+        const isPosted = postedIds.includes(r.id);
+        const fbPostedBadgeHtml = currentUserRole
+          ? `<button type="button" onclick="toggleRoomPostedStatus(event, '${r.id}')" title="Bấm để đổi trạng thái Đã đăng / Chưa đăng FB" class="px-2.5 py-1 rounded-full text-[10px] font-extrabold shadow-xs transition cursor-pointer ${
+              isPosted ? 'bg-blue-600 text-white' : 'bg-zinc-900/75 text-zinc-200 hover:bg-zinc-900'
+            }">${isPosted ? '✅ Đã đăng FB' : '⏳ Chưa đăng FB'}</button>`
+          : '';
 
         const customBadgesHtml = Array.isArray(r.customCategories)
           ? r.customCategories
@@ -1375,6 +1650,8 @@
                   ${statusBadgeHtml}
                   <span class="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-zinc-900/80 text-white backdrop-blur-xs">${escapeHtml(r.area || 'Khu vực')}</span>
                 </div>
+
+                ${fbPostedBadgeHtml ? `<div class="absolute top-3 right-3">${fbPostedBadgeHtml}</div>` : ''}
 
                 <!-- Nhãn hiển thị song song 2 mức giá trên góc ảnh -->
                 <div class="absolute bottom-3 right-3 bg-zinc-900/85 backdrop-blur-xs text-white px-3 py-1.5 rounded-2xl text-right shadow space-y-0.5">
@@ -1408,11 +1685,14 @@
               <button onclick="openDetailModal('${r.id}')" class="flex-1 py-2.5 px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-white font-extrabold text-xs transition flex items-center justify-center gap-1.5">
                 <i data-lucide="eye" class="w-4 h-4"></i> Chi Tiết
               </button>
+              <button onclick="shareRoomToFacebook(event, '${r.id}')" title="Copy chữ & Đẩy chùm ảnh sang App Facebook" class="py-2.5 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs transition flex items-center gap-1 cursor-pointer">
+                <i data-lucide="share-2" class="w-3.5 h-3.5"></i> Đăng FB
+              </button>
               <a href="https://zalo.me/${cleanZaloPhone}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" title="Mở Zalo chat trực tiếp" class="py-2.5 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xs transition flex items-center gap-1">
                 <i data-lucide="message-circle" class="w-3.5 h-3.5"></i> Zalo
               </a>
               <button onclick="copyRoomShareText(event, '${r.id}')" title="Copy thông tin gửi Zalo cho khách" class="py-2.5 px-2.5 rounded-xl bg-zinc-200/80 hover:bg-zinc-300 text-zinc-800 font-extrabold text-xs transition flex items-center gap-1">
-                <i data-lucide="copy" class="w-3.5 h-3.5"></i> Copy
+                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
               </button>
               ${currentUserRole ? `
                 <button onclick="openRoomModal('${r.id}')" class="py-2.5 px-2.5 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-900 font-bold text-xs transition">Sửa</button>
@@ -1492,13 +1772,14 @@
         socialBox.classList.add('hidden');
       }
 
-      // Cập nhật số điện thoại cho cả 2 nút Gọi Điện + Mở Zalo trực tiếp
+      // Cập nhật số điện thoại cho cả 2 nút Gọi Điện + Mở Zalo trực tiếp + Đăng FB
       const phoneToUse = currentAgent ? currentAgent.phone : (r.phone || '0905123456');
       const cleanZaloPhone = cleanPhoneForZalo(phoneToUse);
       document.getElementById('detail-phone').textContent = phoneToUse;
       document.getElementById('detail-call-btn').href = `tel:${cleanZaloPhone}`;
       document.getElementById('detail-zalo-btn').href = `https://zalo.me/${cleanZaloPhone}`;
       document.getElementById('detail-copy-btn').onclick = (e) => copyRoomShareText(e, r.id);
+      document.getElementById('detail-fb-share-btn').onclick = (e) => shareRoomToFacebook(e, r.id);
 
       const internalBox = document.getElementById('detail-internal-note-box');
       const internalText = document.getElementById('detail-internal-note');
@@ -1678,7 +1959,7 @@
       window._toastTimer = setTimeout(() => {
         toast.classList.add('opacity-0', 'translate-y-[-20px]');
         toast.classList.remove('opacity-100', 'translate-y-0');
-      }, 2400);
+      }, 2800);
     }
 
     function escapeHtml(str) {
